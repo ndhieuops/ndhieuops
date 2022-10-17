@@ -8,6 +8,9 @@ metadata:
   name: test
   namespace: demo
 spec:
+  selector:
+    matchLabels:
+      app: test
   annotations:
     app: etcd-statefulset
     garden.sapcloud.io/role: controlplane
