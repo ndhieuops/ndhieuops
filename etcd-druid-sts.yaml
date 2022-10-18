@@ -136,25 +136,10 @@ spec:
 
 
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: data-etcd
-spec:
-  capacity:
-    storage: 15Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: default
-  hostPath:
-    path: /tmp
----
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: etcd-pvc
+  name: data
 spec:
   accessModes:
     - ReadWriteOnce
@@ -212,7 +197,17 @@ spec:
       volumes:
       - name: tls
         secret:
-          secretName: etcd-tls
-      - name: data
-        persistentVolumeClaim:
+          secretName: etcd-tls       
+  volumeClaimTemplates:
+  - metadata:
+      labels:
+        app: etcd
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 15Gi
+      persistentVolumeClaim:
             claimName: etcd-pvc
