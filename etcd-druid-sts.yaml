@@ -133,6 +133,38 @@ spec:
   selector:
     app: etcd
   type: ClusterIP
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-etcd
+spec:
+  capacity:
+    storage: 15Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: default
+  local:
+    path: /tmp
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: etcd-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 15Gi
+  storageClassName: default
+
+
+
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -181,6 +213,9 @@ spec:
       - name: tls
         secret:
           secretName: etcd-tls
+      - name: data
+        persistentVolumeClaim:
+            claimName: etcd-pvc
   volumeClaimTemplates:
   - metadata:
       labels:
