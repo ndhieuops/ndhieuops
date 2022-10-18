@@ -2305,7 +2305,7 @@ spec:
   pvcRetentionPolicy: DeleteAll
   replicas: 1
   storageCapacity: 80Gi
-  storageClass: default
+  storageClass: ""
   store:
     storageContainer: test
     storageProvider: S3
