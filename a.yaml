@@ -2020,9 +2020,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - policy
-  resources:
-  - poddisruptionbudgets
+  - apps
+  resources: ["*"]
   verbs:
   - create
   - delete
