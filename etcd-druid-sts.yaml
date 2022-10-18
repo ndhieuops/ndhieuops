@@ -139,7 +139,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: data
+  name: data-etcd
 spec:
   accessModes:
     - ReadWriteOnce
@@ -210,4 +210,4 @@ spec:
         requests:
           storage: 15Gi
       persistentVolumeClaim:
-            claimName: etcd-pvc
+            claimName: data-etcd
