@@ -148,7 +148,7 @@ spec:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Delete
   storageClassName: default
-  local:
+  hostPath:
     path: /tmp
 ---
 kind: PersistentVolumeClaim
