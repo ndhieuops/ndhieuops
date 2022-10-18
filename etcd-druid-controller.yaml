@@ -1966,8 +1966,9 @@ metadata:
   name: etcd-druid-manager-role
 rules:
 - apiGroups:
-  - apps
-  resources: ["*"]
+  - batch
+  resources: 
+  - jobs
   verbs:
   - create
   - delete
