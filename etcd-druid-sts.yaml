@@ -216,15 +216,3 @@ spec:
       - name: data
         persistentVolumeClaim:
             claimName: etcd-pvc
-  volumeClaimTemplates:
-  - metadata:
-      labels:
-        app: etcd
-      name: data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 15Gi
-      storageClassName: default
