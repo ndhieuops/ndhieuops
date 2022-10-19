@@ -8,6 +8,9 @@ metadata:
   name: etcd
   namespace: garden
 spec:
+  selector:
+    matchLabels:
+      app: etcd
   annotations:
     app: etcd
     garden.sapcloud.io/role: controlplane
