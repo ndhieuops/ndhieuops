@@ -1,0 +1,159 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: etcd-druid-leader-election-role
+  namespace: garden
+rules:
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: etcd-druid-manager-role
+rules:
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - druid.gardener.cloud
+  resources:
+  - etcds
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - druid.gardener.cloud
+  resources:
+  - etcds/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - druid.gardener.cloud
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: etcd-druid-leader-election-rolebinding
+  namespace: garden
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: etcd-druid-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: garden
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: etcd-druid-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: etcd-druid-manager-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: garden
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    control-plane: etcd-druid
+  name: etcd-druid-controller
+  namespace: garden
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: etcd-druid
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+      labels:
+        control-plane: etcd-druid
+    spec:
+      containers:
+      - args:
+        - --enable-leader-election
+        command:
+        - /etcd-druid
+        image: eu.gcr.io/gardener-project/gardener/etcd-druid:v0.13.0
+        imagePullPolicy: IfNotPresent
+        name: druid
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
