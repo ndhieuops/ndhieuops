@@ -5,9 +5,12 @@ kind: Etcd
 metadata:
   finalizers:
   - druid.gardener.cloud/etcd
-  name: test
+  name: etcd
   namespace: garden
 spec:
+  selector:
+      matchLabels:
+        app: etcd
   annotations:
     app: etcd-statefulset
     garden.sapcloud.io/role: controlplane
