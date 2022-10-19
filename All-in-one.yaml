@@ -2181,7 +2181,11 @@ status:
   etcd:
     apiVersion: apps/v1
     kind: StatefulSet
-    name: etcd
+    metadata:
+      labels:
+        app: etcd
+      name: etcd
+      namespace: garden
 ---
 apiVersion: v1
 data:
