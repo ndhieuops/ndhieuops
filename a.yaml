@@ -2,17 +2,4 @@ apt update
 apt upgrade -y 
 apt install -y  git make go vim curl wget
 snap install docker --classic
-snap install kubectl --classic
-snap install go --classic
-snap install kustomize --classic
-wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-cp minikube-linux-amd64 /usr/local/bin/minikube
-chmod 755 /usr/local/bin/minikube
-minikube start --force
-alias k='kubectl'
-alias kp='kubectl get pod -A'
-alias kc='kubectl create'
-alias kd='kubectl delete'
-alias kds='kubectl describe'
-alias kl='kubectl logs'
-alias kg='kubectl get'
+
