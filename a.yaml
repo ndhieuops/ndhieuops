@@ -1,5 +1,5 @@
 apt update
 apt upgrade -y 
-apt install -y  git make go vim curl wget
+apt install -y  git make vim curl wget
 snap install docker --classic
 
