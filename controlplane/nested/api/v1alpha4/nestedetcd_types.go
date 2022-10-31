@@ -24,6 +24,7 @@ import (
 )
 
 // NestedEtcdSpec defines the desired state of NestedEtcd.
+
 // type NestedEtcdSpec struct {
 // 	// NestedComponentSpec contains the common and user-specified information
 // 	// that are required for creating the component.
@@ -252,7 +253,7 @@ type BackupSpec struct {
 }
 
 // EtcdConfig defines parameters associated etcd deployed
-type EtcdConfig struct {
+type NestedEtcdConfig struct {
 	// Quota defines the etcd DB quota.
 	// +optional
 	Quota *resource.Quantity `json:"quota,omitempty"`
@@ -335,7 +336,7 @@ type NestedEtcdSpec struct {
 	// +optional
 	Annotations map[string]string `json:"annotations,omitempty"`
 	// +required
-	Etcd EtcdConfig `json:"etcd"`
+	NetstedEtcd NestedEtcdConfig `json:"etcd"`
 	// +required
 	Backup BackupSpec `json:"backup"`
 	// +optional
@@ -343,7 +344,6 @@ type NestedEtcdSpec struct {
 	// +optional
 	SchedulingConstraints SchedulingConstraints `json:"schedulingConstraints,omitempty"`
 	// +required
-	Replicas int32 `json:"replicas"`
 	// PriorityClassName is the name of a priority class that shall be used for the etcd pods.
 	// +optional
 	PriorityClassName *string `json:"priorityClassName,omitempty"`
@@ -420,29 +420,29 @@ type Condition struct {
 }
 
 // EtcdMemberConditionStatus is the status of an etcd cluster member.
-type EtcdMemberConditionStatus string
+type NestedEtcdConditionStatus string
 
 const (
 	// EtcdMemberStatusReady means a etcd member is ready.
-	EtcdMemberStatusReady EtcdMemberConditionStatus = "Ready"
+	NestedEtcdStatusReady NestedEtcdConditionStatus = "Ready"
 	// EtcdMemberStatusNotReady means a etcd member is not ready.
-	EtcdMemberStatusNotReady EtcdMemberConditionStatus = "NotReady"
+	NestedEtcdStatusNotReady NestedEtcdConditionStatus = "NotReady"
 	// EtcdMemberStatusUnknown means the status of an etcd member is unknown.
-	EtcdMemberStatusUnknown EtcdMemberConditionStatus = "Unknown"
+	NestedEtcdStatusUnknown NestedEtcdConditionStatus = "Unknown"
 )
 
 // EtcdRole is the role of an etcd cluster member.
-type EtcdRole string
+type NestedEtcdRole string
 
 const (
 	// EtcdRoleLeader describes the etcd role `Leader`.
-	EtcdRoleLeader EtcdRole = "Leader"
+	NestedEtcdRoleLeader NestedEtcdRole = "Leader"
 	// EtcdRoleMember describes the etcd role `Member`.
-	EtcdRoleMember EtcdRole = "Member"
+	NestedEtcdRoleMember NestedEtcdRole = "Member"
 )
 
 // EtcdMemberStatus holds information about a etcd cluster membership.
-type EtcdMemberStatus struct {
+type NestedEtcdMemberStatus struct {
 	// Name is the name of the etcd member. It is the name of the backing `Pod`.
 	Name string `json:"name"`
 	// ID is the ID of the etcd member.
@@ -450,9 +450,9 @@ type EtcdMemberStatus struct {
 	ID *string `json:"id,omitempty"`
 	// Role is the role in the etcd cluster, either `Leader` or `Member`.
 	// +optional
-	Role *EtcdRole `json:"role,omitempty"`
+	Role *NestedEtcdRole `json:"role,omitempty"`
 	// Status of the condition, one of True, False, Unknown.
-	Status EtcdMemberConditionStatus `json:"status"`
+	Status NestedEtcdConditionStatus `json:"status"`
 	// The reason for the condition's last transition.
 	Reason string `json:"reason"`
 	// LastTransitionTime is the last time the condition's status changed.
@@ -499,7 +499,7 @@ type NestedEtcdStatus struct {
 	LabelSelector *metav1.LabelSelector `json:"labelSelector,omitempty"`
 	// Members represents the members of the etcd cluster
 	// +optional
-	Members []EtcdMemberStatus `json:"members,omitempty"`
+	Members []NestedEtcdStatus `json:"members,omitempty"`
 	// PeerUrlTLSEnabled captures the state of peer url TLS being enabled for the etcd member(s)
 	// +optional
 	PeerUrlTLSEnabled *bool `json:"peerUrlTLSEnabled,omitempty"`
@@ -527,11 +527,6 @@ type NestedEtcd struct {
 	Status NestedEtcdStatus `json:"status,omitempty"`
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-// +kubebuilder:object:root=true
-
 // EtcdList contains a list of Etcd
 type NestedEtcdList struct {
 	metav1.TypeMeta `json:",inline"`
@@ -540,7 +535,7 @@ type NestedEtcdList struct {
 }
 
 // EtcdCopyBackupsTaskSpec defines the parameters for the copy backups task.
-type EtcdCopyBackupsTaskSpec struct {
+type NestedEtcdCopyBackupsTaskSpec struct {
 	// SourceStore defines the specification of the source object store provider for storing backups.
 	SourceStore StoreSpec `json:"sourceStore"`
 	// TargetStore defines the specification of the target object store provider for storing backups.
@@ -568,7 +563,7 @@ type WaitForFinalSnapshotSpec struct {
 }
 
 // EtcdCopyBackupsTaskStatus defines the observed state of the copy backups task.
-type EtcdCopyBackupsTaskStatus struct {
+type NestedEtcdCopyBackupsTaskStatus struct {
 	// Conditions represents the latest available observations of an object's current state.
 	// +patchMergeKey=type
 	// +patchStrategy=merge
@@ -584,9 +579,9 @@ type EtcdCopyBackupsTaskStatus struct {
 
 const (
 	// EtcdCopyBackupsTaskSucceeded is a condition type indicating that a EtcdCopyBackupsTask has succeeded.
-	EtcdCopyBackupsTaskSucceeded ConditionType = "Succeeded"
+	NestedEtcdCopyBackupsTaskSucceeded ConditionType = "Succeeded"
 	// EtcdCopyBackupsTaskFailed is a condition type indicating that a EtcdCopyBackupsTask has failed.
-	EtcdCopyBackupsTaskFailed ConditionType = "Failed"
+	NestedEtcdCopyBackupsTaskFailed ConditionType = "Failed"
 )
 
 // +genclient
@@ -597,12 +592,12 @@ const (
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`
 
 // EtcdCopyBackupsTask is a task for copying etcd backups from a source to a target store.
-type EtcdCopyBackupsTask struct {
+type NetstedEtcdCopyBackupsTask struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   EtcdCopyBackupsTaskSpec   `json:"spec,omitempty"`
-	Status EtcdCopyBackupsTaskStatus `json:"status,omitempty"`
+	Spec   NestedEtcdCopyBackupsTaskSpec   `json:"spec,omitempty"`
+	Status NestedEtcdCopyBackupsTaskStatus `json:"status,omitempty"`
 }
 
 // +genclient
@@ -611,10 +606,10 @@ type EtcdCopyBackupsTask struct {
 // +kubebuilder:object:root=true
 
 // EtcdCopyBackupsTaskList contains a list of EtcdCopyBackupsTask objects.
-type EtcdCopyBackupsTaskList struct {
+type NetstedEtcdCopyBackupsTaskList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []EtcdCopyBackupsTask `json:"items"`
+	Items           []NetstedEtcdCopyBackupsTask `json:"items"`
 }
 
 func init() {
