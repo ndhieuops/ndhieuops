@@ -18,32 +18,33 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	kamajiv1alpha1 "github.com/clastix/kamaji/api/v1alpha1"
+	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
+	"sigs.k8s.io/cluster-api/controllers/external"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha4"
-	kcpv1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1alpha4"
+	infrav1 "sigs.k8s.io/cluster-api-provider-openstack/api/v1alpha5"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/certs"
-	"sigs.k8s.io/cluster-api/util/conditions"
 	"sigs.k8s.io/cluster-api/util/kubeconfig"
 	"sigs.k8s.io/cluster-api/util/patch"
 	"sigs.k8s.io/cluster-api/util/secret"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	addonv1alpha1 "sigs.k8s.io/kubebuilder-declarative-pattern/pkg/patterns/addon/pkg/apis/v1alpha1"
 
 	controlplanev1 "sigs.k8s.io/cluster-api-provider-nested/controlplane/nested/api/v1alpha4"
-	"sigs.k8s.io/cluster-api-provider-nested/controlplane/nested/kubeadm"
 )
 
 // +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=clusters,verbs=get;list;watch
@@ -126,14 +127,8 @@ func (r *NestedControlPlaneReconciler) Reconcile(ctx context.Context, req ctrl.R
 		return r.reconcileDelete(ctx, log, ncp)
 	}
 
-	defer func() {
-		if err := patchControlPlane(ctx, patchHelper, ncp); err != nil {
-			log.Error(err, "Failed to patch KubeadmControlPlane")
-		}
-	}()
-
 	// Handle normal reconciliation loop.
-	return r.reconcile(ctx, log, cluster, ncp)
+	return r.reconcile(ctx, log, req, cluster, ncp)
 }
 
 // reconcileDelete will delete the control plane and all it's nestedcomponents.
@@ -161,133 +156,96 @@ func (r *NestedControlPlaneReconciler) reconcileDelete(ctx context.Context, log 
 	return ctrl.Result{}, nil
 }
 
-func patchControlPlane(ctx context.Context, patchHelper *patch.Helper, ncp *controlplanev1.NestedControlPlane) error {
-	// Always update the readyCondition by summarizing the state of other conditions.
-	conditions.SetSummary(ncp,
-		conditions.WithConditions(
-			kcpv1.AvailableCondition,
-			kcpv1.CertificatesAvailableCondition,
-		),
-	)
-
-	// Patch the object, ignoring conflicts on the conditions owned by this controller.
-	return patchHelper.Patch(
-		ctx,
-		ncp,
-		patch.WithOwnedConditions{Conditions: []clusterv1.ConditionType{
-			clusterv1.ReadyCondition,
-			kcpv1.AvailableCondition,
-			kcpv1.CertificatesAvailableCondition,
-		}},
-		patch.WithStatusObservedGeneration{},
-	)
-}
-
 // reconcile will handle all "normal" NCP reconciles this means create/update actions.
-func (r *NestedControlPlaneReconciler) reconcile(ctx context.Context, log logr.Logger, cluster *clusterv1.Cluster, ncp *controlplanev1.NestedControlPlane) (res ctrl.Result, reterr error) {
+func (r *NestedControlPlaneReconciler) reconcile(ctx context.Context, log logr.Logger, req ctrl.Request, cluster *clusterv1.Cluster, ncp *controlplanev1.NestedControlPlane) (res ctrl.Result, reterr error) {
 	log.Info("Reconcile NestedControlPlane")
 
-	certificates := secret.NewCertificatesForInitialControlPlane(nil)
-	controllerRef := metav1.NewControllerRef(ncp, controlplanev1.GroupVersion.WithKind("NestedControlPlane"))
-	if err := certificates.LookupOrGenerate(ctx, r.Client, util.ObjectKey(cluster), *controllerRef); err != nil {
-		log.Error(err, "unable to lookup or create cluster certificates")
-		conditions.MarkFalse(ncp, kcpv1.CertificatesAvailableCondition, kcpv1.CertificatesGenerationFailedReason, clusterv1.ConditionSeverityWarning, err.Error())
-		return ctrl.Result{}, err
-	}
-	// TODO(christopherhein) use conditions to mark when ready
-	conditions.MarkTrue(ncp, kcpv1.CertificatesAvailableCondition)
+	etcd := &druidv1alpha1.Etcd{}
 
-	// If ControlPlaneEndpoint is not set, return early
-	if !cluster.Spec.ControlPlaneEndpoint.IsValid() {
-		log.Info("Cluster does not yet have a ControlPlaneEndpoint defined")
-		return ctrl.Result{}, nil
-	}
-
-	if result, err := r.reconcileKubeconfig(ctx, cluster, ncp); !result.IsZero() || err != nil {
-		if err != nil {
-			log.Error(err, "failed to reconcile Kubeconfig")
-		}
-		return result, err
-	}
-
-	addOwners := []client.Object{}
-	isReady := []int{}
-	nestedComponents := map[client.Object]*corev1.ObjectReference{
-		&controlplanev1.NestedEtcd{}:              ncp.Spec.EtcdRef,
-		&controlplanev1.NestedAPIServer{}:         ncp.Spec.APIServerRef,
-		&controlplanev1.NestedControllerManager{}: ncp.Spec.ControllerManagerRef,
-	}
-
-	// generate manifests by calling the kubeadm
-	templates, err := kubeadm.GenerateTemplates(log, cluster.GetName())
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// complete the manifests with CAPN specific configurations
-	manifests, err := completeTemplates(templates, cluster.GetName())
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// create the configmap that holds the manifest of each component
-	if err := createManifestsConfigMap(r.Client,
-		manifests, cluster.GetName(),
-		ncp.GetNamespace()); err != nil && !apierrors.IsAlreadyExists(err) {
-		return ctrl.Result{}, err
-	}
-
-	// Adopt NestedComponents in the same Namespace
-	for component, nestedComponent := range nestedComponents {
-		if nestedComponent != nil {
-			objectKey := types.NamespacedName{Namespace: ncp.GetNamespace(), Name: nestedComponent.Name}
-			if err := r.Get(ctx, objectKey, component); err != nil {
-				if !apierrors.IsNotFound(err) {
-					return ctrl.Result{Requeue: true}, err
-				}
+	if err := r.Client.Get(ctx, req.NamespacedName, etcd); err != nil {
+		if apierrors.IsNotFound(err) {
+			etcd.Name = ncp.Name
+			etcd.Namespace = ncp.Namespace
+			etcd.Spec = druidv1alpha1.EtcdSpec{}
+			if err := r.Client.Create(ctx, etcd); err != nil {
+				log.Info("Fail to create etcd cluster")
+				return ctrl.Result{}, err
 			}
-
-			if !util.HasOwner(component.GetOwnerReferences(), controlplanev1.GroupVersion.String(), []string{"NestedControlPlane"}) {
-				log.Info("Component Missing Owner", "component", nestedComponent)
-				addOwners = append(addOwners, component)
-			}
-
-			if commonObject, ok := component.(addonv1alpha1.CommonObject); ok {
-				if IsComponentReady(commonObject.GetCommonStatus()) {
-					isReady = append(isReady, 1)
-				} else {
-					log.Info("Component is not ready", "component", nestedComponent)
-				}
-			}
+			return ctrl.Result{RequeueAfter: waitForResourceReady}, nil
 		}
+		return ctrl.Result{}, err
 	}
-
-	// Add Controller Reference
-	if err := r.reconcileControllerOwners(ctx, ncp, addOwners); err != nil {
-		return ctrl.Result{Requeue: true}, err
-	}
-
-	// Set Initialized
-	if !ncp.Status.Initialized {
-		conditions.MarkTrue(ncp, kcpv1.AvailableCondition)
-		ncp.Status.Initialized = true
-		if err := r.Status().Update(ctx, ncp); err != nil {
-			return ctrl.Result{}, err
-		}
-	}
-
-	// Set Ready
-	if !ncp.Status.Ready && len(isReady) == 3 {
-		conditions.MarkTrue(ncp, clusterv1.ReadyCondition)
-		ncp.Status.Ready = true
-		if err := r.Status().Update(ctx, ncp); err != nil {
-			return ctrl.Result{}, err
-		}
-	} else if !ncp.Status.Ready && len(isReady) < 3 {
+	if !*etcd.Status.Ready {
+		log.Info("Wait for etcd cluster ready")
 		return ctrl.Result{Requeue: true}, nil
 	}
 
+	//get Data Store , create if not found   --> check Data Store (Kamaji)
+
+	ds := &kamajiv1alpha1.DataStore{}
+	if err := r.Client.Get(ctx, req.NamespacedName, ds); err != nil {
+		if apierrors.IsNotFound(err) {
+			ds.Name = ncp.Name
+			ds.Namespace = ncp.Namespace
+			ds.Spec = kamajiv1alpha1.DataStoreSpec{}
+			if err := r.Client.Create(ctx, ds); err != nil {
+				log.Info("Fail to create data store")
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{Requeue: true}, nil
+		}
+	}
+
+	//get Tenant Control Plane , create if not found   --> check Tenant Control Plane (Kamaji)
+	// Set Status Initialized
+	tcp := &kamajiv1alpha1.TenantControlPlane{}
+	if err := r.Client.Get(ctx, req.NamespacedName, tcp); err != nil {
+		if apierrors.IsNotFound(err) {
+			tcp.Name = ncp.Name
+			tcp.Namespace = ncp.Namespace
+			tcp.Spec = kamajiv1alpha1.TenantControlPlaneSpec{}
+			if err := r.Client.Create(ctx, tcp); err != nil {
+				log.Info("Fail to create data store")
+				return ctrl.Result{}, err
+			}
+			ncp.Status.Initialized = true
+			if err := r.Client.Status().Update(ctx, ncp); err != nil {
+				return reconcile.Result{}, err
+			}
+			return ctrl.Result{Requeue: true}, nil
+		}
+	}
+
+	// Set Control Plane Endpoint for Infra Provider
+	// Set Status Ready
+	if tcp.Status.ControlPlaneEndpoint != "" {
+		infra, err := external.Get(ctx, r.Client, cluster.Spec.InfrastructureRef, cluster.Namespace)
+		if err != nil {
+			if apierrors.IsNotFound(errors.Cause(err)) {
+				return ctrl.Result{RequeueAfter: waitForResourceReady}, nil
+			}
+			return ctrl.Result{}, err
+		}
+		infraName := getNestedString(infra.Object, "metadata", "name")
+		infraKind := getNestedString(infra.Object, "metadata", "kind")
+		if strings.Contains(strings.ToLower(infraKind), "openstack") {
+			osc := &infrav1.OpenStackCluster{}
+
+		} else if strings.Contains(strings.ToLower(infraKind), "docker") {
+			// TODO (thangtv32) support docker infra for test enviroment
+			return ctrl.Result{}, nil
+		} else {
+			return ctrl.Result{}, errors.New("Infra Provider is not support")
+		}
+
+		ncp.Status.Ready = true
+		if err := r.Client.Status().Update(ctx, ncp); err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+
 	return ctrl.Result{}, nil
+
 }
 
 // reconcileKubeconfig will check if the control plane endpoint has been set
@@ -357,4 +315,45 @@ func (r *NestedControlPlaneReconciler) reconcileControllerOwners(ctx context.Con
 		}
 	}
 	return nil
+}
+
+func getNestedString(obj map[string]interface{}, fields ...string) string {
+	val, found, err := NestedString(obj, fields...)
+	if !found || err != nil {
+		return ""
+	}
+	return val
+}
+func NestedString(obj map[string]interface{}, fields ...string) (string, bool, error) {
+	val, found, err := NestedFieldNoCopy(obj, fields...)
+	if !found || err != nil {
+		return "", found, err
+	}
+	s, ok := val.(string)
+	if !ok {
+		return "", false, fmt.Errorf("%v accessor error: %v is of the type %T, expected string", jsonPath(fields), val, val)
+	}
+	return s, true, nil
+}
+func jsonPath(fields []string) string {
+	return "." + strings.Join(fields, ".")
+}
+
+func NestedFieldNoCopy(obj map[string]interface{}, fields ...string) (interface{}, bool, error) {
+	var val interface{} = obj
+
+	for i, field := range fields {
+		if val == nil {
+			return nil, false, nil
+		}
+		if m, ok := val.(map[string]interface{}); ok {
+			val, ok = m[field]
+			if !ok {
+				return nil, false, nil
+			}
+		} else {
+			return nil, false, fmt.Errorf("%v accessor error: %v is of the type %T, expected map[string]interface{}", jsonPath(fields[:i+1]), val, val)
+		}
+	}
+	return val, true, nil
 }

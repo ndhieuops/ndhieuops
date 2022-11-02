@@ -18,6 +18,8 @@ limitations under the License.
 // api group.
 package controllers
 
+import "time"
+
 const (
 	statefulsetOwnerKeyNEtcd = ".metadata.netcd.controller"
 	statefulsetOwnerKeyNKas  = ".metadata.nkas.controller"
@@ -29,4 +31,6 @@ const (
 	// EtcdManifestConfigmapName is the key name of the etcd manifest in the configmap.
 	EtcdManifestConfigmapName = "netcd-manifest"
 	loopbackAddress           = "127.0.0.1"
+	waitForResourceReady      = 15 * time.Second
+	waitForNextSchedule       = 60 * time.Second
 )

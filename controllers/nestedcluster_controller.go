@@ -20,13 +20,12 @@ package controllers
 
 import (
 	"context"
-	"reflect"
-
 	"github.com/go-logr/logr"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	clusterv1 "sigs.k8s.io/cluster-api/api/v1alpha4"
+	"reflect"
+	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/predicates"
@@ -40,6 +39,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	kamajiv1alpha1 "github.com/clastix/kamaji/api/v1alpha1"
+	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
 	infrav1 "sigs.k8s.io/cluster-api-provider-nested/api/v1alpha4"
 	controlplanev1 "sigs.k8s.io/cluster-api-provider-nested/controlplane/nested/api/v1alpha4"
 )
@@ -144,6 +145,12 @@ func (r *NestedClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, err
 	}
+	if !nc.DeletionTimestamp.IsZero() {
+		return r.reconcileDelete(ctx, req, cluster, nc)
+	}
+
+	// Handle non-deleted clusters
+	return r.reconcileNormal(ctx, req, cluster, nc)
 
 	if !nc.Status.Ready && ncp.Status.Ready && ncp.Status.Initialized {
 		nc.Status.Ready = true
@@ -152,6 +159,84 @@ func (r *NestedClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		}
 		return ctrl.Result{}, nil
 	}
+
+	return ctrl.Result{}, nil
+}
+
+func (r *NestedClusterReconciler) reconcileDelete(ctx context.Context, req ctrl.Request, cluster *clusterv1.Cluster, nc *infrav1.NestedCluster) (ctrl.Result, error) {
+	log := ctrl.LoggerFrom(ctx, "cluster", cluster.Name)
+	log.Info("Reconcile KubeadmControlPlane deletion")
+	log.Info(nc.Name)
+	return ctrl.Result{}, nil
+}
+
+func (r *NestedClusterReconciler) reconcileNormal(ctx context.Context, req ctrl.Request, cluster *clusterv1.Cluster, nc *infrav1.NestedCluster) (ctrl.Result, error) {
+	log := ctrl.LoggerFrom(ctx, "cluster", cluster.Name)
+	log.Info("Reconcile KubeadmControlPlane normal")
+	log.Info(nc.Name)
+	//get etcd cluster, create if not found   ---> check ETCD Cluster (druin)
+	etcd := &druidv1alpha1.Etcd{}
+
+	if err := r.Client.Get(ctx, req.NamespacedName, etcd); err != nil {
+		if apierrors.IsNotFound(err) {
+			etcd.Name = nc.Name
+			etcd.Namespace = nc.Namespace
+			etcd.Spec = druidv1alpha1.EtcdSpec{}
+			if err := r.Client.Create(ctx, etcd); err != nil {
+				log.Info("Fail to create etcd cluster")
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{RequeueAfter: waitForResourceReady}, nil
+		}
+		return ctrl.Result{}, err
+	}
+	if !*etcd.Status.Ready {
+		log.Info("Wait for etcd cluster ready")
+		return ctrl.Result{Requeue: true}, nil
+	}
+
+	//get Data Store , create if not found   --> check Data Store (Kamaji)
+
+	ds := &kamajiv1alpha1.DataStore{}
+	if err := r.Client.Get(ctx, req.NamespacedName, ds); err != nil {
+		if apierrors.IsNotFound(err) {
+			ds.Name = nc.Name
+			ds.Namespace = nc.Namespace
+			ds.Spec = kamajiv1alpha1.DataStoreSpec{}
+			if err := r.Client.Create(ctx, ds); err != nil {
+				log.Info("Fail to create data store")
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{Requeue: true}, nil
+		}
+	}
+
+	//get Tenant Control Plane , create if not found   --> check Tenant Control Plane (Kamaji)
+	tcp := &kamajiv1alpha1.TenantControlPlane{}
+	if err := r.Client.Get(ctx, req.NamespacedName, tcp); err != nil {
+		if apierrors.IsNotFound(err) {
+			tcp.Name = nc.Name
+			tcp.Namespace = nc.Namespace
+			tcp.Spec = kamajiv1alpha1.TenantControlPlaneSpec{}
+			if err := r.Client.Create(ctx, tcp); err != nil {
+				log.Info("Fail to create data store")
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{Requeue: true}, nil
+		}
+	}
+	// Set Control Plane Endpoint for Control Plane
+	// Set Control Plane Endpoint for Infra Provider
+	if tcp.Status.ControlPlaneEndpoint != "" {
+		nc.Spec.ControlPlaneEndpoint.Host = ""
+		nc.Spec.ControlPlaneEndpoint.Port = 0
+		nc.Status.Ready = true
+		nc.Status.
+		//update nc
+
+	}
+
+	// Set Status Provision and Ready
 
 	return ctrl.Result{}, nil
 }
