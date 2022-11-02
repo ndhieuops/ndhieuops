@@ -22,7 +22,7 @@ require (
 
 )
 
-// replace for Kamaji import problem
+// replace for Kamaji, CAPO import problem
 replace (
 	k8s.io/api => k8s.io/api v0.25.0
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.25.0

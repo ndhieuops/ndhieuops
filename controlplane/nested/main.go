@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -150,34 +150,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "NestedControlPlane")
 		os.Exit(1)
 	}
-
-	if err = (&controllers.NestedEtcdReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("controlplane").WithName("NestedEtcd"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "NestedEtcd")
-		os.Exit(1)
-	}
-
-	if err = (&controllers.NestedAPIServerReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("controlplane").WithName("NestedAPIServer"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "NestedAPIServer")
-		os.Exit(1)
-	}
-
-	if err = (&controllers.NestedControllerManagerReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("controlplane").WithName("NestedControllerManager"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "NestedControllerManager")
-		os.Exit(1)
-	}
-	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("Starting manager", "version", version.Get().String())
 	if err := mgr.Start(ctx); err != nil {

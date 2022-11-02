@@ -48,17 +48,6 @@ type NestedControlPlaneSpec struct {
 
 // NestedControlPlaneStatus defines the observed state of NestedControlPlane.
 type NestedControlPlaneStatus struct {
-	// Etcd stores the connection information from the downstream etcd
-	// implementation if the NestedEtcd type isn't used this
-	// allows other component controllers to fetch the endpoints.
-	// +optional
-	Etcd *NestedControlPlaneStatusEtcd `json:"etcd,omitempty"`
-
-	// APIServer stores the connection information from the control plane
-	// this should contain anything shared between control plane components.
-	// +optional
-	APIServer *NestedControlPlaneStatusAPIServer `json:"apiserver,omitempty"`
-
 	// Initialized denotes whether or not the control plane finished initializing.
 	// +optional
 	Initialized bool `json:"initialized"`
@@ -75,13 +64,6 @@ type NestedControlPlaneStatus struct {
 
 	// Conditions specifies the conditions for the managed control plane
 	Conditions clusterv1.Conditions `json:"conditions,omitempty"`
-}
-
-// NestedControlPlaneStatusEtcd defines the status of the etcd component to
-// allow other component controllers to take over the deployment.
-type NestedControlPlaneStatusEtcd struct {
-	// Addresses defines how to address the etcd instance
-	Addresses []NestedEtcdAddress `json:"addresses,omitempty"`
 }
 
 // NestedControlPlaneStatusAPIServer defines the status of the APIServer
