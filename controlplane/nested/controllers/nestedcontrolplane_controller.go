@@ -21,6 +21,7 @@ import (
 	"fmt"
 	kamajiv1alpha1 "github.com/clastix/kamaji/api/v1alpha1"
 	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/cluster-api/controllers/external"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strings"
@@ -33,6 +34,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	infrav1 "sigs.k8s.io/cluster-api-provider-openstack/api/v1alpha5"
+
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/util"
 	"sigs.k8s.io/cluster-api/util/annotations"
@@ -230,6 +232,16 @@ func (r *NestedControlPlaneReconciler) reconcile(ctx context.Context, log logr.L
 		infraKind := getNestedString(infra.Object, "metadata", "kind")
 		if strings.Contains(strings.ToLower(infraKind), "openstack") {
 			osc := &infrav1.OpenStackCluster{}
+			oscKey := types.NamespacedName{Name: infraName, Namespace: ncp.Namespace}
+			if err := r.Client.Get(ctx, oscKey, osc); err != nil {
+				return ctrl.Result{}, err
+			}
+			osc.Spec.ControlPlaneEndpoint.Host = ""
+			osc.Spec.ControlPlaneEndpoint.Port = 123
+			if err := r.Client.Update(ctx, osc); err != nil {
+				log.Info("Error when update control plane endpoint for infra provider")
+				return ctrl.Result{}, err
+			}
 
 		} else if strings.Contains(strings.ToLower(infraKind), "docker") {
 			// TODO (thangtv32) support docker infra for test enviroment
@@ -237,6 +249,8 @@ func (r *NestedControlPlaneReconciler) reconcile(ctx context.Context, log logr.L
 		} else {
 			return ctrl.Result{}, errors.New("Infra Provider is not support")
 		}
+
+		//TODO (thangtv32) reconcile expired kubeconfig
 
 		ncp.Status.Ready = true
 		if err := r.Client.Status().Update(ctx, ncp); err != nil {

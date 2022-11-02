@@ -4,7 +4,6 @@ go 1.16
 
 require (
 	github.com/clastix/kamaji v0.1.1
-	sigs.k8s.io/cluster-api-provider-openstack v0.6.3
 	github.com/gardener/etcd-druid/api v0.6.0
 	github.com/go-logr/logr v1.2.3
 	github.com/onsi/ginkgo v1.16.5
@@ -17,8 +16,10 @@ require (
 	k8s.io/client-go v0.25.0
 	k8s.io/klog/v2 v2.70.1
 	sigs.k8s.io/cluster-api v1.1.3
+	sigs.k8s.io/cluster-api-provider-openstack v0.6.3
 	sigs.k8s.io/controller-runtime v0.11.2
 	sigs.k8s.io/kubebuilder-declarative-pattern v0.0.0-20210630174303-f77bb4933dfb
+
 )
 
 // replace for Kamaji import problem
@@ -48,4 +49,6 @@ replace (
 	k8s.io/mount-utils => k8s.io/mount-utils v0.25.0
 	k8s.io/pod-security-admission => k8s.io/pod-security-admission v0.25.0
 	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.25.0
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v1.1.3
+
 )
