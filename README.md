@@ -3,19 +3,27 @@
 ## Agenda
 
 [1. Kiến trúc hiện tại](#Về-kiến-trúc-hiện-tại)
+[a](#2-mô-hình-kiến-trúc-cũ)
 
 ## Về kiến trúc hiện tại
 
-- Mô hình tổng quan
+a
 
-- mô hình kiến trúc cũ
+##### 1. Mô hình tổng quan
+
+##### 2. mô hình kiến trúc cũ
+
 (chèn hình)
-- Flow triển khai
-  - a
-  - b
 
-- Các thành phần :
-  - **CLuster API Provider** : Hiện tại mình đang dùng core của [Cluster API]
+##### 3. Flow triển khai
+
+- Từ cluster API mình sẽ define control plane mà nó sẽ dùng là cái nào và cả infrastructure mà nó dùng là infra bên nào
+  - B1: từ thằng infrastructure đó nó sẽ tự động tạo 1 LoadBalancer cho APi server
+  - B2: từ thằng control plane thì nó sẽ tạo ra 1 CRD Machine ở CRD này mình sẽ define ra infrastructurespec và infrastructurespec temmplate
+
+##### 4. Các thành phần
+
+- **CLuster API Provider** : Hiện tại mình đang dùng core của [Cluster API]
     > **Nhiệm vụ :** nó sẽ tạo ra các
     >
     > - Thành phần **CRD** :
@@ -33,7 +41,7 @@
     >     - Trong spec của nó có :
     >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration
 
-  - **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
+- **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
     > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó.
     >
     > - Thành phần **CRD** : 2 thành phần chính
@@ -46,7 +54,7 @@
     >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration
     >
 
-  - **Cluster API Provider Controlplane** : Đối với Controlplane thì mình đang dùng **Kubeadm Controlplane** của [Cluster API]
+- **Cluster API Provider Controlplane** : Đối với Controlplane thì mình đang dùng **Kubeadm Controlplane** của [Cluster API]
     > **Nhiệm vụ :** nó sẽ chịu trách nhiệm quản lý các cấu hình để boot lên 1 cụm control plane
     >
     > - Thành phần **CRD** : 2 thành phần chính
@@ -58,7 +66,7 @@
     >   - Trong spec của nó có :
     >   - **infrastructure** : a
 
-  - **Infrastructure Provider** : Hiện tại thì mình đang dùng **Cluster API Provider OpenStack** ([CAPO])
+- **Infrastructure Provider** : Hiện tại thì mình đang dùng **Cluster API Provider OpenStack** ([CAPO])
     > **Nhiệm vụ :** nó sẽ chịu trách nhiệm tạo ra các resource tương ứng dưới lớp hạ tầng như các VM
     >
     > - Thành phần **CRD** : 4 thành phần chính
