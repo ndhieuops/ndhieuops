@@ -22,7 +22,7 @@ a
 
 #### 2. mô hình kiến trúc cũ
 
-
+![image](http://10.240.203.2/hieund35/capn/-/blob/main/report.png)
 
 #### 3. Flow triển khai
 
