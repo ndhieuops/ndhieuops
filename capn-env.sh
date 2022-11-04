@@ -2,7 +2,7 @@ apt update && apt upgrade -y
 apt install -y git make 
 wget  https://go.dev/dl/go1.19.linux-amd64.tar.gz 
 tar -xvf go1.19.linux-amd64.tar.gz 
-mv go /usr/local 
+cp /go/bin/go /usr/local/bin/go && mv go /usr/local  
 export GOROOT=/usr/local/go 
 rm -r go go1.19.linux-amd64.tar.gz
 go version
