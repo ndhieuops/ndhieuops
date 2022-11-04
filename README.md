@@ -112,6 +112,27 @@ a
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
 
+Với CAPI thì đầu tiên khi khởi tạo nó sẽ tạo ra 1 event resource Machine Health check thì nó sẽ đảm bảo cho cái gì ?
+
+Sau đó lại 1 event khác là Machine Set để làm gì ? (nó là boootstrap để set cả infrastructure reference)
+(2 cái khác nhau) cái thứ nhất là set template cái thứ 2 là fill vào template các spec tương ứng
+
+Tiếp nó lại fill lại vào machine health check
+
+- Tức là machine set là arg để fill vào machine health check ?
+
+Tiếp theo nó tạo ra clsuter có spec là control olane endpont sau đó nó lại tạo tiếp 1 clsuter nữa với status boootstrap false
+
+Thêm 1 lần nữa nó tạo ra manchine health check để add thêm các spec control plane endpoint
+
+Step tiếp theo nó tạo ra controller với reconciler là machine heatlh check
+
+Sau đó nó tạo machineset và cluster
+--> nó tạo ra machine deployment  và lần lượt tạo lại machine và cluster
+Nó lại recociler các machinedeployment tương ứng --> khởi tạo các worker node.
+
+Nó Adding watcher on external object để phục vụ cho việc
+
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
 [CAPO]:<https://github.com/kubernetes-sigs/cluster-api-provider-openstack.git>
