@@ -14,5 +14,5 @@ chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
 git clone https://github.com/kubernetes-sigs/cluster-api-provider-nested.git
 git clone https://github.com/kubernetes-sigs/cluster-api.git
-cd cluster-api && git checkout release-0.4 && make clusterctl && chmod +x clusterctl && cp clusterctl /urs/local/bin/clusterctl
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=13sxq2IHEWzx8osZHm8C9EcCRxF5dkN7w' -O clusterctl && chmod +x clusterctl && cp clusterctl /urs/local/bin/clusterctl
 wget https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
