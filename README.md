@@ -85,14 +85,14 @@
     >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
     >   - **Openstack cluster infrastructure template**
     >     - Trong spec của nó có :
-    >       - **infrastructure** :
+    >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
     >   - **Openstack Machine infrastructure**
     >     - Trong spec của nó có :
-    >       - **infrastructure Template** : Cung cấp InfrastructureTemplate is a required reference to a custom resource offered by an infrastructure provider
-    >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
+    >       - **infrastructure Template** :
+    >       - **kubeadm config spec** :
     >   - **Openstack Machine infrastructure template**
     >     - Trong spec của nó có :
-    >       - **infrastructure** : a
+    >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
 
 #### 5. Ưu điểm
 
