@@ -133,6 +133,11 @@ Nó lại recociler các machinedeployment tương ứng --> khởi tạo các w
 
 Nó Adding watcher on external object để phục vụ cho việc
 
+Note : Mình sử dụng thằng cluster API trước để init khởi tạo các resource mình chỉ định như là --core là gì ...
+
+sau khi khởi tạo xong thì mình sẽ apply các template để tạ ra các resource tương ứng
+hay nói cách khác init tạo ra các arg còn tempalte thì fill in các arg vào đó ?
+
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
 [CAPO]:<https://github.com/kubernetes-sigs/cluster-api-provider-openstack.git>
