@@ -11,7 +11,7 @@
         - [4. Các thành phần](#4-các-thành-phần)
     - [ưu điểm](#ưu-điểm)
     - [nhược điểm](#nhược-điểm)
-  - [Về kiến trúc mới](#về-kiến-trúc-mới)
+  - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
     - [Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
 
 ## I. Về kiến trúc hiện tại
@@ -101,7 +101,7 @@ a
 - Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút
 - Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có động chạm vào thì sẽ đổ lỗi cho mình
 
-## Về kiến trúc mới
+## II. Về kiến trúc mới
 
 - a
 
