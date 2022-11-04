@@ -22,7 +22,7 @@ a
 
 #### 2. mô hình kiến trúc cũ
 
-(chèn hình)
+
 
 #### 3. Flow triển khai
 

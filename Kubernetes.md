@@ -42,5 +42,13 @@ Nó là 1 tool khởi tạo ra các resource dưới dạng code go. ví dụ m�
 kubebuilder create api --group webapp --version v1 --kind Guestbook
 ```
 
+Khi mình khởi tạo 1 thằng controller thì nó sẽ tự định nghãi ra cá resource tương tự như thằng django có hết mọi thứ k cần phải từng step step.
+
+Hầu hết các thằng k8s engine hiện đang opensource thì đề phát triển dựa trên kubebuilder nó sẽ tạo ra các API và controller để phục vụ cho các CRDs tùy theo mình muốn
+
+Controller là gì ?
+
+- nó là thành phần lõi của k8s và trên bất kỳ operator nào
+- lý do : Vì nó quản lý các resource do nó tạo ra nó như 1 thằng API vậy đảm bảo việc các resource triển khai đúng theo trạng thái mong đợi
 
 ## [Architect](https://kube.academy/courses/the-kubernetes-machine)
