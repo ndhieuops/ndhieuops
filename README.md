@@ -22,7 +22,7 @@ a
 
 #### 2. mô hình kiến trúc cũ
 
-![image]https://github.com/ndhieuops/ndhieuops/blob/note/report.png
+![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
 
 #### 3. Flow triển khai
 
