@@ -1,5 +1,5 @@
 apt update && apt upgrade -y 
-apt install -y git make 
+apt install -y git make docker.io
 wget  https://go.dev/dl/go1.19.linux-amd64.tar.gz 
 tar -xvf go1.19.linux-amd64.tar.gz 
 cp /go/bin/go /usr/local/bin/go && mv go /usr/local  
