@@ -9,20 +9,20 @@
       - [2. mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
       - [3. Flow triển khai](#3-flow-triển-khai)
       - [4. Các thành phần](#4-các-thành-phần)
-      - [5. ưu điểm](#5-ưu-điểm)
-      - [6. nhược điểm](#6-nhược-điểm)
+      - [5. Ưu điểm](#5-ưu-điểm)
+      - [6. Nhược điểm](#6-nhược-điểm)
   - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
   - [III. Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
 
 ### I. Về kiến trúc hiện tại
 
-a
+
 
 #### 1. Mô hình tổng quan
 
 #### 2. mô hình kiến trúc cũ
 
-![image](http://10.240.203.2/hieund35/capn/-/blob/main/report.png)
+![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
 
 #### 3. Flow triển khai
 
@@ -94,9 +94,9 @@ a
     >     - Trong spec của nó có :
     >       - **infrastructure** : a
 
-#### 5. ưu điểm
+#### 5. Ưu điểm
 
-#### 6. nhược điểm
+#### 6. Nhược điểm
 
 - Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút
 - Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có động chạm vào thì sẽ đổ lỗi cho mình
