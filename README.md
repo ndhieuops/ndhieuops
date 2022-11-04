@@ -2,11 +2,12 @@
 
 ## Agenda
 
-[1. Kiến trúc hiện tại](#Về-kiến-trúc-hiện-tại)
+- [I. Kiến trúc hiện tại](#I-Về-kiến-trúc-hiện-tại)
+  - [1. Mô hình tổng quan](#1-Mô-hình-tổng-quan)
+  - [2. mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
+  - [3. Flow triển khai](#3-Flow-triển-khai)
 
-[a](#2-mô-hình-kiến-trúc-cũ)
-
-## Về kiến trúc hiện tại
+## I. Về kiến trúc hiện tại
 
 a
 
