@@ -12,7 +12,7 @@
       - [5. ưu điểm](#5-ưu-điểm)
       - [6. nhược điểm](#6-nhược-điểm)
   - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
-    - [Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
+  - [III. Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
 
 ### I. Về kiến trúc hiện tại
 
@@ -105,7 +105,7 @@ a
 
 - a
 
-### Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
+## III. Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
 - Bộ CRD của CAPI
 - Bộ CRD của CAPO
