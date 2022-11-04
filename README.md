@@ -3,6 +3,7 @@
 ## Agenda
 
 [1. Kiến trúc hiện tại](#Về-kiến-trúc-hiện-tại)
+
 [a](#2-mô-hình-kiến-trúc-cũ)
 
 ## Về kiến trúc hiện tại
