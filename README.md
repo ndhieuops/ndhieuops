@@ -2,10 +2,17 @@
 
 ## Agenda
 
-- [I. Kiến trúc hiện tại](#I-Về-kiến-trúc-hiện-tại)
-  - [1. Mô hình tổng quan](#1-Mô-hình-tổng-quan)
-  - [2. mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
-  - [3. Flow triển khai](#3-Flow-triển-khai)
+- [Tổng kết họp ngày 3/11/2022](#tổng-kết-họp-ngày-3112022)
+  - [Agenda](#agenda)
+  - [I. Về kiến trúc hiện tại](#i-về-kiến-trúc-hiện-tại)
+        - [1. Mô hình tổng quan](#1-mô-hình-tổng-quan)
+        - [2. mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
+        - [3. Flow triển khai](#3-flow-triển-khai)
+        - [4. Các thành phần](#4-các-thành-phần)
+    - [ưu điểm](#ưu-điểm)
+    - [nhược điểm](#nhược-điểm)
+  - [Về kiến trúc mới](#về-kiến-trúc-mới)
+    - [Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
 
 ## I. Về kiến trúc hiện tại
 
