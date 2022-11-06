@@ -67,7 +67,7 @@
     > - Thành phần **CRD** : 2 thành phần chính
     > **kubeadmcontrolplanes**
     >   - Trong spec của nó có :
-    >     - **infrastructure Template** : 
+    >     - **infrastructure Template** :
     >     - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
     > **kubeadmcontrolplanes template**
     >   - Trong spec của nó có :
@@ -104,8 +104,6 @@
 - Ly do :De giai quyet nhung van de con ton dong  mo hinh kien truc cu. Thi doi voi thang CAPC(Cluster Api Controlplane) minh co the ap dung giai phap cua thang nested -> no se khoi tao cac control plane thay vi duoi dang kubeadm la cac Vitual Machine thi se la cac Pod. Va hon nua thi de quan ly cac pod do thi no se duoc trien khai tap trung tren cum cluster cua minh --> giai quyet van de distributed maáeed node va worker node.
 - Khi trien khai duoi dang cac pod thi se tang thoi gian boot len tu 9 phut --> 4 5p ( theo ly thuyet)
 
-
-
 ## III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
 - Bộ CRD của CAPI
@@ -113,7 +111,7 @@
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
 
---- 
+---
 
 Phan tich
 
@@ -142,7 +140,6 @@ Note : Mình sử dụng thằng cluster API trước để init khởi tạo c�
 
 sau khi khởi tạo xong thì mình sẽ apply các template để tạ ra các resource tương ứng
 hay nói cách khác init tạo ra các arg còn tempalte thì fill in các arg vào đó ?
-
 
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
