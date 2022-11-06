@@ -6,21 +6,19 @@
   - [Agenda](#agenda)
     - [I. Về kiến trúc hiện tại](#i-về-kiến-trúc-hiện-tại)
       - [1. Mô hình tổng quan](#1-mô-hình-tổng-quan)
-      - [2. mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
+      - [2. Mô hình kiến trúc cũ](#2-mô-hình-kiến-trúc-cũ)
       - [3. Flow triển khai](#3-flow-triển-khai)
       - [4. Các thành phần](#4-các-thành-phần)
       - [5. Ưu điểm](#5-ưu-điểm)
       - [6. Nhược điểm](#6-nhược-điểm)
   - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
-  - [III. Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-nếu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
+  - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
 
 ### I. Về kiến trúc hiện tại
 
-
-
 #### 1. Mô hình tổng quan
 
-#### 2. mô hình kiến trúc cũ
+#### 2. Mô hình kiến trúc cũ
 
 ![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
 
@@ -69,19 +67,19 @@
     > - Thành phần **CRD** : 2 thành phần chính
     > **kubeadmcontrolplanes**
     >   - Trong spec của nó có :
-    >     - **infrastructure Template** : Cung cấp InfrastructureTemplate is a required reference to a custom resource offered by an infrastructure provider
+    >     - **infrastructure Template** : 
     >     - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
     > **kubeadmcontrolplanes template**
     >   - Trong spec của nó có :
     >   - **infrastructure** : a
 
 - **Infrastructure Provider** : Hiện tại thì mình đang dùng **Cluster API Provider OpenStack** ([CAPO])
-    > **Nhiệm vụ :** nó sẽ chịu trách nhiệm tạo ra các resource tương ứng dưới lớp hạ tầng như các VM
+    > **Nhiệm vụ :** nó sẽ chịu trách nhiệm tạo ra các resource tương ứng dưới lớp hạ tầng như các VM, LoadBalancer...
     >
     > - Thành phần **CRD** : 4 thành phần chính
     >   - **Openstack cluster infrastructure**
     >     - Trong spec của nó có :
-    >       - **infrastructure Template** : Cung cấp InfrastructureTemplate is a required reference to a custom resource offered by an infrastructure provider
+    >       - **infrastructure Template** : Cung cấp template cho ha tang tuyỳ theo nhu cau tai nguyeên deẻ noó reêrenece voiơ thang ina structuer provider ( hay noi cach khac la de tao deuowcj cac cutom reource  tren tahngf inifra provider thiìcaâầpha co template)
     >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
     >   - **Openstack cluster infrastructure template**
     >     - Trong spec của nó có :
@@ -98,19 +96,26 @@
 
 #### 6. Nhược điểm
 
-- Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút
-- Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có động chạm vào thì sẽ đổ lỗi cho mình
+- Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút( vi de boot duoc thi dau tien no se boot matrer node truoc sau do se den ưoửke node va tuonng tu lan luot cac mater node va worker node con lai ) --> tim giai phap de giam thoi gian boot
+- Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có the tác động den caác master node.
 
 ## II. Về kiến trúc mới
 
-- a
+- Ly do :De giai quyet nhung van de con ton dong  mo hinh kien truc cu. Thi doi voi thang CAPC(Cluster Api Controlplane) minh co the ap dung giai phap cua thang nested -> no se khoi tao cac control plane thay vi duoi dang kubeadm la cac Vitual Machine thi se la cac Pod. Va hon nua thi de quan ly cac pod do thi no se duoc trien khai tap trung tren cum cluster cua minh --> giai quyet van de distributed maáeed node va worker node.
+- Khi trien khai duoi dang cac pod thi se tang thoi gian boot len tu 9 phut --> 4 5p ( theo ly thuyet)
 
-## III. Câu hỏi tìm hiểu nếu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
+
+
+## III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
 - Bộ CRD của CAPI
 - Bộ CRD của CAPO
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
+
+--- 
+
+Phan tich
 
 Với CAPI thì đầu tiên khi khởi tạo nó sẽ tạo ra 1 event resource Machine Health check thì nó sẽ đảm bảo cho cái gì ?
 
@@ -137,6 +142,7 @@ Note : Mình sử dụng thằng cluster API trước để init khởi tạo c�
 
 sau khi khởi tạo xong thì mình sẽ apply các template để tạ ra các resource tương ứng
 hay nói cách khác init tạo ra các arg còn tempalte thì fill in các arg vào đó ?
+
 
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
