@@ -37,12 +37,16 @@
 #### 4. Các thành phần
 
 - **CLuster API Provider** : Hiện tại mình đang dùng core của [Cluster API]
-    > **Nhiệm vụ :** nó sẽ tạo ra các
+    > **Nhiệm vụ :** nó sẽ tạo ra các resource để đảm bảo
     >
     > - Thành phần **CRD** :
-    >   - **Cluster**
+    >   - **Cluster class**
     >     - Trong spec của nó có :
-    >       - **clusterconfiguration** cùng với **initConfiguration** là những cấu hình cần thiết cho init command
+    >       - **ControlPlane**: là một tham chiếu đến cấu trúc local phục vụ cho việc cung cấp control plane cho cluster
+    >         - **machineInfrastructure** : nó định nghĩa các metadata và thông tin về infrastructure cho control plane machine
+    >       - **Infrastructure**
+    >       - **Workers**:
+    >       - **clusterconfiguration** cùnwg với **initConfiguration** là những cấu hình cần thiết cho init command
     >       - **JoinConfiguration** là những cấu hình kubeadm configuration cho join command
     >   - **Machine**
     >     - Trong spec của nó có :
