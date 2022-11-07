@@ -38,7 +38,7 @@
 #### 4. Các thành phần
 
 - **CLuster API Provider** : Hiện tại mình đang dùng core của [Cluster API]
-    > **Nhiệm vụ :** nó sẽ tạo ra các resource để đảm bảo
+    > **Nhiệm vụ :** nó sẽ tạo ra các template cho các resource được chỉ định ngoải ra nó cũng giữ các cấu hình tổng quan của Cluster như pod CIDR, Service CIDR,..
     >
     > - Thành phần **CRD** :
     >   - **Cluster class**
@@ -77,7 +77,7 @@
     >
 
 - **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
-    > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó.
+    > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó. (Xử lý các logic để biên 1 biến 1 VM join vào thành node trong k8s CLuster)
     >
     > - Thành phần **CRD** : 2 thành phần chính
     >   - **kubeadm config**
@@ -152,6 +152,8 @@
 
 ### Short key
 
+- Cluster class : cc
+- Cluster : cl
 - Machine Deployment : md
 - Machine Health Check : mhc - mhcs
 - Machine pool : mp
