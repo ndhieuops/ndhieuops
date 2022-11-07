@@ -129,36 +129,5 @@
 - (trả lời bên trên)
 
 ---
-
-
-Phan tich
-
-Với CAPI thì đầu tiên khi khởi tạo nó sẽ tạo ra 1 event resource Machine Health check thì nó sẽ đảm bảo cho cái gì ?
-
-Sau đó lại 1 event khác là Machine Set để làm gì ? (nó là boootstrap để set cả infrastructure reference)
-(2 cái khác nhau) cái thứ nhất là set template cái thứ 2 là fill vào template các spec tương ứng
-
-Tiếp nó lại fill lại vào machine health check
-
-- Tức là machine set là arg để fill vào machine health check ?
-
-Tiếp theo nó tạo ra clsuter có spec là control olane endpont sau đó nó lại tạo tiếp 1 clsuter nữa với status boootstrap false
-
-Thêm 1 lần nữa nó tạo ra manchine health check để add thêm các spec control plane endpoint
-
-Step tiếp theo nó tạo ra controller với reconciler là machine heatlh check
-
-Sau đó nó tạo machineset và cluster
---> nó tạo ra machine deployment  và lần lượt tạo lại machine và cluster
-Nó lại recociler các machinedeployment tương ứng --> khởi tạo các worker node.
-
-Nó Adding watcher on external object để phục vụ cho việc
-
-Note : Mình sử dụng thằng cluster API trước để init khởi tạo các resource mình chỉ định như là --core là gì ...
-
-sau khi khởi tạo xong thì mình sẽ apply các template để tạ ra các resource tương ứng
-hay nói cách khác init tạo ra các arg còn tempalte thì fill in các arg vào đó ?
-
----
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
 [CAPO]:<https://github.com/kubernetes-sigs/cluster-api-provider-openstack.git>
