@@ -87,7 +87,10 @@
     >   - **kubeadm config**
     >     - Trong spec của nó có :
     >       - **clusterconfiguration** cùng với **initConfiguration** là những cấu hình cần thiết cho init command
-    >       - **JoinConfiguration** là những cấu hình kubeadm configuration cho join command
+    >         - **clusterconfiguration** : có những properties như apiServer, Controlplane Endpoint, controller manager, etcd, scheduler,...
+    >         - **initConfiguration** : có những properties như local api endpoint, node Registration, bootstrap token,...
+    >       - **JoinConfiguration** là những cấu hình kubeadm configuration cho join command. Ví dụ trong properties của nó gó ca Cert Path, control Plane, node Registration,...
+    >
     >   - **kubeadm config templates**
     >     - Trong spec của nó có :
     >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration
