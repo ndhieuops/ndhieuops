@@ -116,7 +116,7 @@
 
 - Giản đồ
 
-![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/new_architect.png)
+![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/new-architect.png)
 
 #### 2. Flow triển khai
 
