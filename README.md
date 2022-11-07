@@ -11,8 +11,11 @@
       - [4. Các thành phần](#4-các-thành-phần)
       - [5. Ưu điểm](#5-ưu-điểm)
       - [6. Nhược điểm](#6-nhược-điểm)
-  - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
-  - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
+    - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
+      - [1. Mô hình kiến trúc mới](#1-mô-hình-kiến-trúc-mới)
+      - [2. Flow triển khai](#2-flow-triển-khai)
+    - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
+  - [(bên trên)](#bên-trên)
 
 ### I. Về kiến trúc hiện tại
 
@@ -103,18 +106,28 @@
 - Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút( vì để boot được thì đầu tiên nó sẽ boot master node truớc sau đó sẽ đến worker node va lan luot các master node va worker node còn lại ) --> yêu cầu tìm giải pháp để giảm thời gian boot
 - Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có thể tác động đến các master node ( mà mình thi không muốn vậy)
 
-## II. Về kiến trúc mới
+### II. Về kiến trúc mới
 
 - Lý do: để giải quyết những vấn đề còn tồn đọng mô hình kiến trúc cũ. Thì đối với CAPC(Cluster Api Controlplane) mình có thểp áp dụng giải pháp cua CAPN (Cluster API provider nested) -> nó sẽ khởi tạo các control plane thay vì dưới dạng các Vitual Machine thì sẽ là dưới dạng các Pod. Và hơn nữa thì để quản lý các pod đó thi nó sẽ được triển khai tập trung trên cụm cluster cua minh (cụm management) --> giải quyết vấn đề distributed master node va worker node.
 - Khi triển khai dưới dạng các pod thi se giảm thời gian boot các master node do đó thời gian boot có thể tu 9 phut --> 4 5p ( theo lý thuyết)
 
-## III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
+#### 1. Mô hình kiến trúc mới
+
+![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
+
+- Giản đồ
+
+![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/old_architect.png)
+
+#### 2. Flow triển khai
+
+### III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
 - Bộ CRD của CAPI
 - Bộ CRD của CAPO
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
-
+(bên trên)
 ---
 
 Phan tich
