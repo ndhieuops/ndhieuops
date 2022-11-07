@@ -129,23 +129,28 @@
     >
     > - Thành phần **CRD** : 4 thành phần chính
     >
-    >   - **Openstack cluster infrastructure**
+    >   - **Openstack Cluster**
     >     - Trong spec của nó có :
-    >       - **infrastructure Template** : Cung cấp template cho ha tang tuyỳ theo nhu cau tai nguyeên deẻ noó reêrenece voiơ thang ina structuer provider ( hay noi cach khac la de tao deuowcj cac cutom reource  tren tahngf inifra provider thiìcaâầpha co template)
-    >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
+    >       - **apiServerFloatingIP** : Cung cấp template cho hạ tầng tùy theo nhu cầu tài nguyên để nó reference với thằng infrastructure provider ( hay nói cách khác là để tạo được các custom resource tren infra provider thì cần phải có template)
+    >       - **Cloud name** : tên của cloud sử dụng từ cloud secret
+    >       - **Cloud secret** : secret được cung cấp bới cloud credentials
+    >       - **controlPlaneEndpoint** : dùng để đại diện cho end point được sử dụng để giao tiếp với control plane.
+    >       - **nodeCIDR, Network,...**
     >
     >   - **Openstack cluster infrastructure template**
     >     - Trong spec của nó có :
-    >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
+    >       - **template** : cung cấp các template tương ứng với các spec mà mình đề ra ở phần openstack cluster
     >
-    >   - **Openstack Machine infrastructure**
+    >   - **Openstack Machine**
     >     - Trong spec của nó có :
-    >       - **infrastructure Template** :
-    >       - **kubeadm config spec** :
+    >       - **Flavor** : chọn flavor cho instance
+    >       - **image** : image để run instance
+    >       - **sshKeyName** : tên của key ssh để inject vào instance
+    >       - **serverMetadata, floatingip,...**
     >
-    >   - **Openstack Machine infrastructure template**
+    >   - **Openstack Machine template**
     >     - Trong spec của nó có :
-    >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
+    >       - **infrastructure** : cung cấp các template tương ứng với các spec mà mình đề ra ở phần openstack machine
 
 #### 5. Ưu điểm
 
@@ -195,7 +200,7 @@ a
 
 ### IV. Short key
 
-- kubeadm control plane : kcp
+- Kubeadm control plane : kcp
 - Cluster class : cc
 - Cluster : cl
 - Machine Deployment : md
@@ -203,6 +208,7 @@ a
 - Machine pool : mp
 - Machines : ma
 - Machinesets : ms
+- Openstackclusters : ocs
 
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
