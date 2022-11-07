@@ -15,7 +15,6 @@
       - [1. Mô hình kiến trúc mới](#1-mô-hình-kiến-trúc-mới)
       - [2. Flow triển khai](#2-flow-triển-khai)
     - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
-  - [(bên trên)](#bên-trên)
 
 ### I. Về kiến trúc hiện tại
 
@@ -127,8 +126,10 @@
 - Bộ CRD của CAPO
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
-(bên trên)
+- (trả lời bên trên)
+
 ---
+
 
 Phan tich
 
