@@ -42,34 +42,42 @@
 #### 4. Các thành phần
 
 - **CLuster API Provider** : Hiện tại mình đang dùng core của [Cluster API]
+    >
     > **Nhiệm vụ :** nó sẽ tạo ra các template cho các resource được chỉ định ngoải ra nó cũng giữ các cấu hình tổng quan của Cluster như pod CIDR, Service CIDR,..
     >
     > - Thành phần **CRD** :
+    >
     >   - **Cluster class**
     >     - Trong spec của nó có :
     >       - **ControlPlane**: là một tham chiếu đến cấu trúc local phục vụ cho việc cung cấp control plane cho cluster
     >         - **machineInfrastructure** : nó định nghĩa các metadata và thông tin về infrastructure cho control plane machine
     >       - **Infrastructure** : nó sẽ refence tới 1 template của 1 provider mà mình chỉ định nó sẽ chứa chi tiết thông tin cho việc cung cấp infrastructure.
     >       - **Workers** : mô tả các worker node cho cluster.
+    >
     >   - **clusterresourcesetbinding** : Bindings một danh sách các ClusterResourceSets và các resources của nó
     >     - Trong spec của nó có : **clusterResourceSetName** và **Resource** là 1 danh sách các resource mà ClusterResourceset có
+    >
     >   - **clusterresourcesets**
     >     - Trong spec của nó có :
     >       - **clusterSelector** : Label selector for Clusters. The Clusters that are selected by this will be the ones affected by this ClusterResourceSet.
     >       - **resources** : nó là 1 danh sách các Secret/Configmaps nơi mà mỗi 1 Secret/Configmap sẽ chứa 1 hoặc nhiều resource để có thể áp dụng cho các cluster từ xa
     >       - **strategy** : là một strategy sử dụng trong quá trình áp dụng các resource
+    >
     >   - **Cluster** :
     >     - Trong spec của nó có :
     >       - **ClusterSpec** : Nó định nghĩa trạng thái mong muốn của Cluster
     >         - **ControlplaneRef** : đặc biệt trong đây có 1 trường là Controlplane Ref nó là 1 optional reference cho người dùng có thể chọn được bất kỳ provider nào
     >         - **infrastructureRef** : nó là 1 optional reference cho người dùng có thể chọn được bất kỳ provider nào mà người dùng muốn
+    >
     >   - **Machine Deployment** : tạo ra các machine deployment dựa theo spec mà mình define.
     >     - Trong spec của nó có :
     >       - **Cluster Name** : tên của clsuter.
     >       - **replicas** : số lượng machine mà mình muốn mặc định sẽ là 1
+    >
     >   - **Machine Health Check** : Chỉ định ra các policy cho machine health check
     >   - **Machine Pool** :
     >   - **Machine Deployment**
+    >
     >   - **Machines** : machinespec sẽ định nghĩa các resource cho machine
     >     - Trong spec của nó có :
     >       - **Bootstrap** : là 1 reference tới cấu trúc hiện tại sau đó đóng gói các trường cấu hình để tích hợp với lúc khởi động machine
@@ -77,10 +85,12 @@
     >       - **required**: là trường được sử dụng để đảm bảo các machine khi deploy đáp ứng đầu đủ yêu cầu
     >         - Điều kiện có đủ boootstrap, Clustername, infrastructureRef
     >       - **Status** : Machinestatus được dử dụng để định nghĩa hiện trạng của machine có ( Bootstrap Ready, infrastructure ready,...)
+    >
     >   - **Machinesets** :
     >
 
 - **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
+    >
     > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó. (Xử lý các logic để biên 1 biến 1 VM join vào thành node trong k8s CLuster)
     >
     > - Thành phần **CRD** : 2 thành phần chính
@@ -93,20 +103,25 @@
     >
     >   - **kubeadm config templates**
     >     - Trong spec của nó có :
-    >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration
+    >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration để fill vào các spec mà mình định nghĩa ra ở phần kubeadm config
     >
 
 - **Cluster API Provider Controlplane** : Đối với Controlplane thì mình đang dùng **Kubeadm Controlplane** của [Cluster API]
+    >
     > **Nhiệm vụ :** nó sẽ chịu trách nhiệm quản lý các cấu hình để boot lên 1 cụm control plane
     >
     > - Thành phần **CRD** : 2 thành phần chính
-    > **kubeadmcontrolplanes**
-    >   - Trong spec của nó có :
-    >     - **infrastructure Template** :
-    >     - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
-    > **kubeadmcontrolplanes template**
-    >   - Trong spec của nó có :
-    >   - **infrastructure** : a
+    >   - **kubeadmcontrolplanes**
+    >     - Trong spec của nó có :
+    >       - **infrastructure Template** : là tham chiếu bắt buộc để sử dụng những tài nguyên tuỳ chỉnh cho infrastructure provider ( như tạo flavor, CPU, RAM,...). Properties của nó có fieldPath, resourceVersion, namespace,..
+    >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
+    >         - **properties** của nó thì sẽ đươc mount từ boootstrap nên các properties sẽ giống nhau.( khởi tạo cloud-init,..)
+    >       - **required** : infrastructureTemplate, kubeadmConfigSpec, Version(k8s version).
+    >
+    >   - **kubeadmcontrolplanes template** : là những template để mô tả những resource trong kubeadm control plane.
+    >     - properties trong spec của nó thì gồm : kubeadmConfigSpec, machineTemplate, replicas, version, ...
+    >     - **required** : kubeadmConfigSpec, machineTemplate, Version(k8s version).
+    >
 
 - **Infrastructure Provider** : Hiện tại thì mình đang dùng **Cluster API Provider OpenStack** ([CAPO])
     > **Nhiệm vụ :** nó sẽ chịu trách nhiệm tạo ra các resource tương ứng dưới lớp hạ tầng như các VM, LoadBalancer...
@@ -175,6 +190,7 @@ a
 
 ### IV. Short key
 
+- kubeadm control plane : kcp
 - Cluster class : cc
 - Cluster : cl
 - Machine Deployment : md
