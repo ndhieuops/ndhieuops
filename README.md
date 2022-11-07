@@ -22,6 +22,10 @@
 
 ![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
 
+- Giản đồ
+
+![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/old_architect.png)
+
 #### 3. Flow triển khai
 
 - Từ cluster API mình sẽ define control plane mà nó sẽ dùng là cái nào và cả infrastructure mà nó dùng là infra bên nào
@@ -96,13 +100,13 @@
 
 #### 6. Nhược điểm
 
-- Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút( vi de boot duoc thi dau tien no se boot matrer node truoc sau do se den ưoửke node va tuonng tu lan luot cac mater node va worker node con lai ) --> tim giai phap de giam thoi gian boot
-- Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có the tác động den caác master node.
+- Ở mô hình cũ thì mình sử dụng thằng control plane của thằng kubeadm nó sẽ boot các control plane đó dưới dạng các VM dẫn đến việc boot nên khá chậm ~~ 9 phút( vì để boot được thì đầu tiên nó sẽ boot master node truớc sau đó sẽ đến worker node va lan luot các master node va worker node còn lại ) --> yêu cầu tìm giải pháp để giảm thời gian boot
+- Ngoài ra thì việc để hết các master node cùng ở với các worker node dẫn đến việc nếu người dùng có thể tác động đến các master node ( mà mình thi không muốn vậy)
 
 ## II. Về kiến trúc mới
 
-- Ly do :De giai quyet nhung van de con ton dong  mo hinh kien truc cu. Thi doi voi thang CAPC(Cluster Api Controlplane) minh co the ap dung giai phap cua thang nested -> no se khoi tao cac control plane thay vi duoi dang kubeadm la cac Vitual Machine thi se la cac Pod. Va hon nua thi de quan ly cac pod do thi no se duoc trien khai tap trung tren cum cluster cua minh --> giai quyet van de distributed maáeed node va worker node.
-- Khi trien khai duoi dang cac pod thi se tang thoi gian boot len tu 9 phut --> 4 5p ( theo ly thuyet)
+- Lý do: để giải quyết những vấn đề còn tồn đọng mô hình kiến trúc cũ. Thì đối với CAPC(Cluster Api Controlplane) mình có thểp áp dụng giải pháp cua CAPN (Cluster API provider nested) -> nó sẽ khởi tạo các control plane thay vì dưới dạng các Vitual Machine thì sẽ là dưới dạng các Pod. Và hơn nữa thì để quản lý các pod đó thi nó sẽ được triển khai tập trung trên cụm cluster cua minh (cụm management) --> giải quyết vấn đề distributed master node va worker node.
+- Khi triển khai dưới dạng các pod thi se giảm thời gian boot các master node do đó thời gian boot có thể tu 9 phut --> 4 5p ( theo lý thuyết)
 
 ## III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
