@@ -180,7 +180,29 @@ a
 
 #### 4. Các thành phần CAPN
 
-a
+- **Cluster API Provider Nested Component** :
+    >
+    > - Thành phần **CRD** :
+    >
+    >   - **nested cluster**
+    >     - Trong spec của nó có :
+    >       - **controlPlaneEndpoint** : define host với port để đại điện cho endpoint để giao tiếp với control plane
+    >
+    >   - **nestedapiservers**
+    >     - Trong spec của nó có :
+    >       - **Template** :
+    >
+    >   - **nestedcontrollermanagers**
+    >     - Trong spec của nó có :
+    >       - **Template** :
+    >
+    >   - **nestedcontrolplanes**
+    >     - Trong spec của nó có :
+    >       - **Template** :
+    >
+    >   - **nestedetcds**
+    >     - Trong spec của nó có :
+    >       - **Template** :
 
 #### 5. Ưu điểm
 
@@ -207,8 +229,9 @@ a
 - Machine Health Check : mhc - mhcs
 - Machine pool : mp
 - Machines : ma
-- Machinesets : ms
-- Openstackclusters : ocs
+- Machine Sets : ms
+- Openstack Clusters : ocs
+- Nested Cluster : nc
 
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
