@@ -44,8 +44,8 @@
     >     - Trong spec của nó có :
     >       - **ControlPlane**: là một tham chiếu đến cấu trúc local phục vụ cho việc cung cấp control plane cho cluster
     >         - **machineInfrastructure** : nó định nghĩa các metadata và thông tin về infrastructure cho control plane machine
-    >       - **Infrastructure**
-    >       - **Workers**:
+    >       - **Infrastructure** : nó sẽ refence tới 1 template của 1 provider mà mình chỉ định nó sẽ chứa chi tiết thông tin cho việc cung cấp infrastructure.
+    >       - **Workers** : mô tả các worker node cho cluster.
     >       - **clusterconfiguration** cùnwg với **initConfiguration** là những cấu hình cần thiết cho init command
     >       - **JoinConfiguration** là những cấu hình kubeadm configuration cho join command
     >   - **Machine**
