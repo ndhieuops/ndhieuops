@@ -79,7 +79,7 @@
 - **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
     > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó. (Xử lý các logic để biên 1 biến 1 VM join vào thành node trong k8s CLuster)
     >
-    > - Thành phần **CRD** : 2 thành phần chính
+    > - Thành phần **CRD** : 2 thành phần chínha
     >   - **kubeadm config**
     >     - Trong spec của nó có :
     >       - **clusterconfiguration** cùng với **initConfiguration** là những cấu hình cần thiết cho init command
