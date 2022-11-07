@@ -23,11 +23,11 @@
 
 #### 2. Mô hình kiến trúc cũ
 
-![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
+![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
 
 - Giản đồ
 
-![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/old_architect.png)
+![giản-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/old_architect.png)
 
 #### 3. Flow triển khai
 
