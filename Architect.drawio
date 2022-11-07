@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2022-11-07T01:56:09.304Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36" etag="wa28jYKxz6sdnuAr7yNd" version="20.5.1" type="github" pages="3">
+<mxfile host="app.diagrams.net" modified="2022-11-07T02:14:57.065Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36" etag="usiYWC6Bi-xTwwX8KPsj" version="20.5.1" type="github" pages="3">
   <diagram id="ckF89f23HVO44DXNB2ES" name="Old Architech">
     <mxGraphModel dx="3972" dy="1932" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -554,15 +554,6 @@
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="110" y="170" as="sourcePoint" />
             <mxPoint x="130" y="120" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="VzzcpgNgFsu7EwO7HFYw-14" value="Load Balancer" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="210" y="170" width="70" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="VzzcpgNgFsu7EwO7HFYw-15" value="" style="endArrow=none;dashed=1;html=1;rounded=0;strokeColor=#0000CC;exitX=0.4;exitY=0.025;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="VzzcpgNgFsu7EwO7HFYw-14">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="220" y="170" as="sourcePoint" />
-            <mxPoint x="238" y="120" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="VzzcpgNgFsu7EwO7HFYw-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;strokeColor=#000000;" edge="1" parent="1" source="VzzcpgNgFsu7EwO7HFYw-21">
