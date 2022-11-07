@@ -112,11 +112,11 @@
 
 #### 1. Mô hình kiến trúc mới
 
-![image](https://github.com/ndhieuops/ndhieuops/blob/note/report.png)
+- Lược đồ
 
 - Giản đồ
 
-![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/old_architect.png)
+![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/new_architect.png)
 
 #### 2. Flow triển khai
 
