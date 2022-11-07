@@ -12,10 +12,14 @@
       - [5. Ưu điểm](#5-ưu-điểm)
       - [6. Nhược điểm](#6-nhược-điểm)
     - [II. Về kiến trúc mới](#ii-về-kiến-trúc-mới)
-      - [1. Mô hình kiến trúc mới](#1-mô-hình-kiến-trúc-mới)
-      - [2. Flow triển khai](#2-flow-triển-khai)
+      - [1. Mô hình tổng quan](#1-mô-hình-tổng-quan-1)
+      - [2. Mô hình kiến trúc mới](#2-mô-hình-kiến-trúc-mới)
+      - [3. Flow triển khai](#3-flow-triển-khai-1)
+      - [4. Các thành phần](#4-các-thành-phần-1)
+      - [5. Ưu điểm](#5-ưu-điểm-1)
+      - [6. Nhược điểm](#6-nhược-điểm-1)
     - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
-    - [Short key](#short-key)
+    - [IV. Short key](#iv-short-key)
 
 ### I. Về kiến trúc hiện tại
 
@@ -132,15 +136,31 @@
 - Lý do: để giải quyết những vấn đề còn tồn đọng mô hình kiến trúc cũ. Thì đối với CAPC(Cluster Api Controlplane) mình có thểp áp dụng giải pháp cua CAPN (Cluster API provider nested) -> nó sẽ khởi tạo các control plane thay vì dưới dạng các Vitual Machine thì sẽ là dưới dạng các Pod. Và hơn nữa thì để quản lý các pod đó thi nó sẽ được triển khai tập trung trên cụm cluster cua minh (cụm management) --> giải quyết vấn đề distributed master node va worker node.
 - Khi triển khai dưới dạng các pod thi se giảm thời gian boot các master node do đó thời gian boot có thể tu 9 phut --> 4 5p ( theo lý thuyết)
 
-#### 1. Mô hình kiến trúc mới
+#### 1. Mô hình tổng quan
 
 - Lược đồ
+
+#### 2. Mô hình kiến trúc mới
 
 - Giản đồ
 
 ![lược-đồ](https://github.com/ndhieuops/ndhieuops/blob/note/new-architect.png)
 
-#### 2. Flow triển khai
+#### 3. Flow triển khai
+
+a
+
+#### 4. Các thành phần
+
+a
+
+#### 5. Ưu điểm
+
+a
+
+#### 6. Nhược điểm
+
+a
 
 ### III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane
 
@@ -150,7 +170,7 @@
 - Bộ CRD của KubeadmControlplane
 - (trả lời bên trên)
 
-### Short key
+### IV. Short key
 
 - Cluster class : cc
 - Cluster : cl
