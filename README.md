@@ -15,6 +15,7 @@
       - [1. Mô hình kiến trúc mới](#1-mô-hình-kiến-trúc-mới)
       - [2. Flow triển khai](#2-flow-triển-khai)
     - [III. Câu hỏi tìm hiểu neu ra CRD của kiến trúc hiện tại CAPI, KubeadmBootstrap, CAPO, KubeadmControlplane](#iii-câu-hỏi-tìm-hiểu-neu-ra-crd-của-kiến-trúc-hiện-tại-capi-kubeadmbootstrap-capo-kubeadmcontrolplane)
+    - [Short key](#short-key)
 
 ### I. Về kiến trúc hiện tại
 
@@ -46,17 +47,34 @@
     >         - **machineInfrastructure** : nó định nghĩa các metadata và thông tin về infrastructure cho control plane machine
     >       - **Infrastructure** : nó sẽ refence tới 1 template của 1 provider mà mình chỉ định nó sẽ chứa chi tiết thông tin cho việc cung cấp infrastructure.
     >       - **Workers** : mô tả các worker node cho cluster.
-    >       - **clusterconfiguration** cùnwg với **initConfiguration** là những cấu hình cần thiết cho init command
-    >       - **JoinConfiguration** là những cấu hình kubeadm configuration cho join command
-    >   - **Machine**
+    >   - **clusterresourcesetbinding** : Bindings một danh sách các ClusterResourceSets và các resources của nó
+    >     - Trong spec của nó có : **clusterResourceSetName** và **Resource** là 1 danh sách các resource mà ClusterResourceset có
+    >   - **clusterresourcesets**
     >     - Trong spec của nó có :
-    >       - **Template** : nó sẽ định nghĩa ra cấu trúc của template cho kubeadm config như init configuration, join configuration và cluster configuration
+    >       - **clusterSelector** : Label selector for Clusters. The Clusters that are selected by this will be the ones affected by this ClusterResourceSet.
+    >       - **resources** : nó là 1 danh sách các Secret/Configmaps nơi mà mỗi 1 Secret/Configmap sẽ chứa 1 hoặc nhiều resource để có thể áp dụng cho các cluster từ xa
+    >       - **strategy** : là một strategy sử dụng trong quá trình áp dụng các resource
+    >   - **Cluster** :
+    >     - Trong spec của nó có :
+    >       - **ClusterSpec** : Nó định nghĩa trạng thái mong muốn của Cluster
+    >         - **ControlplaneRef** : đặc biệt trong đây có 1 trường là Controlplane Ref nó là 1 optional reference cho người dùng có thể chọn được bất kỳ provider nào
+    >         - **infrastructureRef** : nó là 1 optional reference cho người dùng có thể chọn được bất kỳ provider nào mà người dùng muốn
+    >   - **Machine Deployment** : tạo ra các machine deployment dựa theo spec mà mình define.
+    >     - Trong spec của nó có :
+    >       - **Cluster Name** : tên của clsuter.
+    >       - **replicas** : số lượng machine mà mình muốn mặc định sẽ là 1
+    >   - **Machine Health Check** : Chỉ định ra các policy cho machine health check
+    >   - **Machine Pool** :
     >   - **Machine Deployment**
+    >   - **Machines** : machinespec sẽ định nghĩa các resource cho machine
     >     - Trong spec của nó có :
-    >       - **Template** :
-    >   - **Machine Healthcheck**
-    >     - Trong spec của nó có :
-    >       - **Template** :
+    >       - **Bootstrap** : là 1 reference tới cấu trúc hiện tại sau đó đóng gói các trường cấu hình để tích hợp với lúc khởi động machine
+    >       - **infrastructureRef**
+    >       - **required**: là trường được sử dụng để đảm bảo các machine khi deploy đáp ứng đầu đủ yêu cầu
+    >         - Điều kiện có đủ boootstrap, Clustername, infrastructureRef
+    >       - **Status** : Machinestatus được dử dụng để định nghĩa hiện trạng của machine có ( Bootstrap Ready, infrastructure ready,...)
+    >   - **Machinesets** :
+    >
 
 - **Cluster API Provider BootStrap** : Hiện tại thì mình cũng đang dùng **Kubeadm BootStrap** của [Cluster API]
     > **Nhiệm vụ :** nó sẽ tạo ra các data config như cluster configuration hay init configuration hoặc joinconfiguration. Tức là nó sẽ tạo ra các file cấu hình hoặc các template init để khi 1 VM nó boot lên thì sẽ apply các template vào các workernode đó.
@@ -131,6 +149,14 @@
 - Bộ CRD của KubeadmBootstrap
 - Bộ CRD của KubeadmControlplane
 - (trả lời bên trên)
+
+### Short key
+
+- Machine Deployment : md
+- Machine Health Check : mhc - mhcs
+- Machine pool : mp
+- Machines : ma
+- Machinesets : ms
 
 ---
 [Cluster API]:<https://github.com/kubernetes-sigs/cluster-api>
