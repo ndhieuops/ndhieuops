@@ -124,20 +124,25 @@
     >
 
 - **Infrastructure Provider** : Hiện tại thì mình đang dùng **Cluster API Provider OpenStack** ([CAPO])
+    >
     > **Nhiệm vụ :** nó sẽ chịu trách nhiệm tạo ra các resource tương ứng dưới lớp hạ tầng như các VM, LoadBalancer...
     >
     > - Thành phần **CRD** : 4 thành phần chính
+    >
     >   - **Openstack cluster infrastructure**
     >     - Trong spec của nó có :
     >       - **infrastructure Template** : Cung cấp template cho ha tang tuyỳ theo nhu cau tai nguyeên deẻ noó reêrenece voiơ thang ina structuer provider ( hay noi cach khac la de tao deuowcj cac cutom reource  tren tahngf inifra provider thiìcaâầpha co template)
     >       - **kubeadm config spec** : được sử  dụng cho việc khởi tạo và join các **Machine** vào **controlplane**
+    >
     >   - **Openstack cluster infrastructure template**
     >     - Trong spec của nó có :
     >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
+    >
     >   - **Openstack Machine infrastructure**
     >     - Trong spec của nó có :
     >       - **infrastructure Template** :
     >       - **kubeadm config spec** :
+    >
     >   - **Openstack Machine infrastructure template**
     >     - Trong spec của nó có :
     >       - **infrastructure** : cung cấp các template tương ứng với  các spec mà mình đề ra ở trên
