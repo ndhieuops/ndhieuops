@@ -16,3 +16,6 @@ git clone https://github.com/kubernetes-sigs/cluster-api-provider-nested.git
 git clone https://github.com/kubernetes-sigs/cluster-api.git
 wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=13sxq2IHEWzx8osZHm8C9EcCRxF5dkN7w' -O clusterctl && chmod +x clusterctl && cp clusterctl /urs/local/bin/clusterctl
 wget https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+curl -L -o kubebuilder https://go.kubebuilder.io/dl/latest/$(go env GOOS)/$(go env GOARCH)
+chmod +x kubebuilder && mv kubebuilder /usr/local/bin/
+
