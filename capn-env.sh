@@ -19,10 +19,3 @@ wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=13sxq
 wget https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
 curl -L -o kubebuilder https://go.kubebuilder.io/dl/latest/$(go env GOOS)/$(go env GOARCH)
 chmod +x kubebuilder && mv kubebuilder /usr/local/bin/
-kind create cluster --name=capn
-mkdir user
-mv clusterctl ~
-mv cluster-api-provider-nested ~
-mv cluster-api ~
-mv cert-manager.yaml ~
-
