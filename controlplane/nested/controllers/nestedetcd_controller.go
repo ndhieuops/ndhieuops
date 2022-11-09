@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-logr/logr"
 
+	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -55,6 +56,7 @@ func (r *NestedEtcdReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	log := r.Log.WithValues("nestedetcd", req.NamespacedName)
 	log.Info("Reconciling NestedEtcd...")
 	var netcd controlplanev1.NestedEtcd
+	var druid druidv1alpha1.Etcd
 	if err := r.Get(ctx, req.NamespacedName, &netcd); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
@@ -96,6 +98,51 @@ func (r *NestedEtcdReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		if apierrors.IsNotFound(err) {
 			// as the statefulset is not found, mark the NestedEtcd as unready
 			if IsComponentReady(netcd.Status.CommonStatus) {
+				netcd.Status.Phase =
+					string(controlplanev1.Unready)
+				log.V(5).Info("The corresponding statefulset is not found, " +
+					"will mark the NestedEtcd as unready")
+				if err := r.Status().Update(ctx, &netcd); err != nil {
+					log.Error(err, "fail to update the status of the NestedEtcd Object")
+					return ctrl.Result{}, err
+				}
+			}
+
+			if err := r.createEtcdClientCrts(ctx, cluster, &ncp, &netcd); err != nil {
+				log.Error(err, "fail to create NestedEtcd Client Certs")
+				return ctrl.Result{}, err
+			}
+
+			// the statefulset is not found, create one
+			if err := createNestedComponentSts(ctx,
+				r.Client, netcd.ObjectMeta,
+				netcd.Spec.NestedComponentSpec,
+				kubeadm.Etcd, cluster.GetName(), log); err != nil {
+				log.Error(err, "fail to create NestedEtcd StatefulSet")
+				return ctrl.Result{}, err
+			}
+			log.Info("successfully create the NestedEtcd StatefulSet")
+			return ctrl.Result{}, nil
+		}
+		log.Error(err, "fail to get NestedEtcd StatefulSet")
+		return ctrl.Result{}, err
+	}
+
+	var druidSts druidv1alpha1.Etcd
+	if err := r.Get(ctx, types.NamespacedName{
+		Namespace: druid.GetNamespace(),
+		Name:      etcdName,
+	}, &druidSts); err != nil {
+		if apierrors.IsNotFound(err) {
+			// as the statefulset is not found, mark the NestedEtcd as unready
+			druid.Status.Ready = nil
+			druid.Status.ReadyReplicas = 0
+			log.V(5).Info("NestedEtcd is unready")
+			if err := r.Status().Update(ctx, &druid); err != nil {
+				log.Error(err, "fail to update the status of the NestedEtcd Object")
+				return ctrl.Result{}, err
+			}
+			if IsEtcdReady(netcd.Status.CommonStatus) {
 				netcd.Status.Phase =
 					string(controlplanev1.Unready)
 				log.V(5).Info("The corresponding statefulset is not found, " +

@@ -26,6 +26,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 
+	druidv1alpha1 "github.com/gardener/etcd-druid/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -306,6 +307,10 @@ func genObjRefFromObj(obj ctrlcli.Object) corev1.ObjectReference {
 // IsComponentReady will return bool if status Ready.
 func IsComponentReady(status addonv1alpha1.CommonStatus) bool {
 	return status.Phase == string(controlplanev1.Ready)
+}
+
+func IsEtcdReady(status addonv1alpha1.CommonStatus) bool {
+	return status.Phase == string(druidv1alpha1.EtcdMemberStatusReady)
 }
 
 // createManifestsConfigMap create the configmap that holds the manifests of
