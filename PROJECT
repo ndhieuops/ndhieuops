@@ -1,0 +1,16 @@
+domain: etcd.druid.cloud
+layout:
+- go.kubebuilder.io/v3
+projectName: druid
+repo: etcd.druid.cloud/druid
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: etcd.druid.cloud
+  group: etcd.druid.cloud
+  kind: Druid
+  path: etcd.druid.cloud/druid/api/v1
+  version: v1
+version: "3"

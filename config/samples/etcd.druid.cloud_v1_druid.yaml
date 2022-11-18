@@ -1,0 +1,12 @@
+apiVersion: etcd.druid.cloud.etcd.druid.cloud/v1
+kind: Druid
+metadata:
+  labels:
+    app.kubernetes.io/name: druid
+    app.kubernetes.io/instance: druid-sample
+    app.kubernetes.io/part-of: druid
+    app.kuberentes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: druid
+  name: druid-sample
+spec:
+  # TODO(user): Add fields here
