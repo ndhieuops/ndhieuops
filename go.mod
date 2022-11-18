@@ -7,18 +7,15 @@ require (
 	github.com/onsi/gomega v1.19.0
 	k8s.io/apimachinery v0.25.0
 	k8s.io/client-go v0.25.0
+	sigs.k8s.io/cluster-api v0.4.0
 	sigs.k8s.io/controller-runtime v0.13.0
+	sigs.k8s.io/kubebuilder-declarative-pattern v0.0.0-20210120001158-a905f3c7cf41
 )
 
 require (
 	github.com/blang/semver v3.5.1+incompatible // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/gobuffalo/flect v0.2.5 // indirect
-	github.com/opencontainers/go-digest v1.0.0 // indirect
 	k8s.io/cluster-bootstrap v0.24.0 // indirect
-	k8s.io/klog v1.0.0 // indirect
-	sigs.k8s.io/cluster-api v1.2.5 // indirect
-	sigs.k8s.io/kubebuilder-declarative-pattern v0.0.0-20210120001158-a905f3c7cf41 // indirect
 )
 
 require (
@@ -38,7 +35,7 @@ require (
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gardener/etcd-druid/api v0.6.0
-	github.com/go-logr/logr v1.2.3 // indirect
+	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.5 // indirect
@@ -59,7 +56,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.2 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
@@ -79,9 +76,9 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.25.0 // indirect
+	k8s.io/api v0.25.0
 	k8s.io/apiextensions-apiserver v0.25.0 // indirect
 	k8s.io/component-base v0.25.0 // indirect
 	k8s.io/klog/v2 v2.70.1 // indirect

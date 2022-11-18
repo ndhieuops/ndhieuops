@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -89,7 +90,7 @@ func main() {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
-
+	fmt.Println("start")
 	if err = (&controllers.DruidReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
