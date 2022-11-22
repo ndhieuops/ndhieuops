@@ -1,0 +1,12 @@
+apiVersion: infrastructure.sigs.k8s.io/v1
+kind: ViettelMachine
+metadata:
+  labels:
+    app.kubernetes.io/name: viettelmachine
+    app.kubernetes.io/instance: viettelmachine-sample
+    app.kubernetes.io/part-of: cluster-api-provider-viettel
+    app.kuberentes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cluster-api-provider-viettel
+  name: viettelmachine-sample
+spec:
+  # TODO(user): Add fields here
