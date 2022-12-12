@@ -1,4 +1,4 @@
-apiVersion: infrastructure.sigs.k8s.io/v1
+apiVersion: infrastructure.git.viettel.vn/v1
 kind: ViettelCluster
 metadata:
   labels:

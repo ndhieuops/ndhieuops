@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	infrastructurev1 "sigs.k8s.io/cluster-api-provider-viettel/api/v1"
+	infrastructurev1 "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1"
 )
 
 // ViettelMachineTemplateReconciler reconciles a ViettelMachineTemplate object
@@ -33,9 +33,9 @@ type ViettelMachineTemplateReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachinetemplates,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachinetemplates/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachinetemplates/finalizers,verbs=update
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachinetemplates,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachinetemplates/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachinetemplates/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
