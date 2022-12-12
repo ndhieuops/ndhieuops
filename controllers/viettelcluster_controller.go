@@ -126,12 +126,12 @@ func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, cloudPro
 	// start reconcile vpc for CAPV
 	ProjectID, _ := uuid.Parse(cloudProvider.CloudProjectID)
 	var vcs infrav1.ViettelClusterSpec
-	err := cloudProvider.Cloud.ReconcileVpc(ctx, ViettelCluster, vcs, ProjectID)
+	err := cloudProvider.Cloud.ReconcileVpc(r.Log, ctx, ViettelCluster, vcs, ProjectID)
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("fail when reconcile vpc %s", err)
 	}
 
-	subnet := cloudProvider.Cloud.ReconcileSubnet(ctx, ViettelCluster, vcs)
+	subnet := cloudProvider.Cloud.ReconcileSubnet(r.Log, ctx, ViettelCluster, vcs, ProjectID)
 	if subnet != nil {
 		r.Log.Info("Fail reconcile with VPC")
 		return reconcile.Result{}, subnet

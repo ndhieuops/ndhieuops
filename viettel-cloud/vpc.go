@@ -9,7 +9,6 @@ import (
 	openapi_types "github.com/deepmap/oapi-codegen/pkg/types"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"sigs.k8s.io/cluster-api-provider-openstack/pkg/metrics"
 )
 
 var (
@@ -40,32 +39,18 @@ func (r *ViettelCloud) CheckandEnableInternet(ctx context.Context, vpc cloudapi.
 	return nil
 }
 
-func (r *ViettelCloud) ListSubnet(ctx context.Context) (*[]cloudapi.Subnet, error) {
-	mc := metrics.NewMetricPrometheusContext("Subnet", "list")
-	subnets, err := r.Client.InfraSubnetsListWithResponse(ctx, &cloudapi.InfraSubnetsListParams{
-		ProjectId: r.projectID,
-	})
-	if mc.ObserveRequest(err) != nil {
-		return subnets.JSON200.Results, fmt.Errorf("can't list Subnet in Project : %s", r.projectID)
+func (r *ViettelCloud) GetSubnet(ctx context.Context, SubnetID string, ProjectID openapi_types.UUID) (cloudapi.Subnet, error) {
+	subnetID, _ := uuid.Parse(SubnetID)
+	subnet, err := r.Client.InfraSubnetsRetrieveWithResponse(ctx, subnetID, &cloudapi.InfraSubnetsRetrieveParams{ProjectId: ProjectID})
+	if err != nil {
+		return cloudapi.Subnet{}, fmt.Errorf("can't found any Subnet with ID : %s", SubnetID)
 	}
-	return subnets.JSON200.Results, fmt.Errorf("can't list Subnet in Project : %s", r.projectID)
+	return *subnet.JSON200, nil
 }
 
-func (r *ViettelCloud) GetSubnet(SubnetID openapi_types.UUID, SubnetList *[]cloudapi.Subnet) (cloudapi.Subnet, error) {
-	Subnets := *SubnetList
-	for i := range Subnets {
-		subnet := Subnets[i]
-		if *subnet.Id == SubnetID {
-			return subnet, nil
-		}
-	}
-	return cloudapi.Subnet{}, fmt.Errorf("can't found any VPC with ID : %s", SubnetID)
-}
-
-func (r *ViettelCloud) ReconcileVpc(ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) error {
-
+func (r *ViettelCloud) ReconcileVpc(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) error {
+	log.Info("Start ReconcileVpc")
 	// check VPC exist or not
-
 	vpc, err := r.GetVpc(ctx, vcs.VpcID, ProjectID)
 	if err != nil {
 		return fmt.Errorf("can't found any VPC with the ID %s", vcs.VpcID)
@@ -74,13 +59,12 @@ func (r *ViettelCloud) ReconcileVpc(ctx context.Context, ViettelCluster *infrav1
 	if err != nil {
 		return fmt.Errorf("can't enable internet access to VPC with id  %s", vpc.Id)
 	}
-
 	// Update ViettelCluster VPC Spec
 	ViettelCluster.Status.Vpc = &vpc
 	return nil
 }
 
-func (r *ViettelCloud) ReconcileSubnet(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec) error {
+func (r *ViettelCloud) ReconcileSubnet(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) error {
 
 	//TODO check how many IP remain
 
@@ -90,20 +74,12 @@ func (r *ViettelCloud) ReconcileSubnet(log logr.Logger, ctx context.Context, Vie
 		return nil
 	}
 
-	subnet, err := r.GetSubnet(vcs.VpcID, subnets)
+	subnet, err := r.GetSubnet(ctx, vcs.SubnetID, ProjectID)
 	if err != nil {
 		return fmt.Errorf("can't found any VPC with the ID %s", vcs.VpcID)
 	}
 
 	// Update ViettelCluster Subnet Spec
-	ViettelCluster.Status.Subnet = &cloudapi.Subnet{
-		Cidr:    subnet.Cidr,
-		Id:      subnet.Id,
-		Name:    subnet.Name,
-		Owner:   subnet.Owner,
-		Project: subnet.Project,
-		Region:  subnet.Region,
-		Vpc:     subnet.Vpc,
-	}
+	ViettelCluster.Status.Subnet = &subnet
 	return nil
 }
