@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	infrastructurev1 "sigs.k8s.io/cluster-api-provider-viettel/api/v1"
+	infrastructurev1 "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1"
 )
 
 // ViettelMachineReconciler reconciles a ViettelMachine object
@@ -33,9 +33,9 @@ type ViettelMachineReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachines,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachines/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=infrastructure.sigs.k8s.io,resources=viettelmachines/finalizers,verbs=update
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachines,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachines/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelmachines/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -48,6 +48,12 @@ type ViettelMachineReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (r *ViettelMachineReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
+
+	//vc, err := cmp.CreateViettelCloudProvider()
+	//if err != nil {
+	//	return ctrl.Result{}, err
+	//}
+	//vc.GetInstanceByID("f")
 
 	// TODO(user): your logic here
 

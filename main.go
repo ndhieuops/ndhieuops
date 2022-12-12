@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	infrastructurev1 "sigs.k8s.io/cluster-api-provider-viettel/api/v1"
-	"sigs.k8s.io/cluster-api-provider-viettel/controllers"
+	infrastructurev1 "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1"
+	"git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -71,7 +71,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "b5204a15.sigs.k8s.io",
+		LeaderElectionID:       "b5204a15.git.viettel.vn",
 		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
 		// when the Manager ends. This requires the binary to immediately end when the
 		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly

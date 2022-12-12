@@ -12,7 +12,7 @@ metadata:
   name: viettelclustertemplate-viewer-role
 rules:
 - apiGroups:
-  - infrastructure.sigs.k8s.io
+  - infrastructure.git.viettel.vn
   resources:
   - viettelclustertemplates
   verbs:
@@ -20,7 +20,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - infrastructure.sigs.k8s.io
+  - infrastructure.git.viettel.vn
   resources:
   - viettelclustertemplates/status
   verbs:

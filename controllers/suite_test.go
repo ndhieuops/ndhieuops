@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	infrastructurev1 "sigs.k8s.io/cluster-api-provider-viettel/api/v1"
+	infrastructurev1 "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1"
 	//+kubebuilder:scaffold:imports
 )
 

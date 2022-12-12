@@ -12,7 +12,7 @@ metadata:
   name: viettelmachine-editor-role
 rules:
 - apiGroups:
-  - infrastructure.sigs.k8s.io
+  - infrastructure.git.viettel.vn
   resources:
   - viettelmachines
   verbs:
@@ -24,7 +24,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - infrastructure.sigs.k8s.io
+  - infrastructure.git.viettel.vn
   resources:
   - viettelmachines/status
   verbs:
