@@ -1,2 +1,0 @@
-./buildContainerImage.sh -v 19.3.0 -s -t oracle:1.19.3
-docker run -it --rm --name oracledb -p 1521:1521 -p 5500:5500 -e ORACLE_PWD=My1passw -v ${PWD}:/opt/oracle/oradata oracle/database:19.3.0-se2
