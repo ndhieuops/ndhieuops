@@ -1,0 +1,27 @@
+# permissions for end users to view viettelclusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: viettelcluster-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: cluster-api-provider-viettel
+    app.kubernetes.io/part-of: cluster-api-provider-viettel
+    app.kubernetes.io/managed-by: kustomize
+  name: viettelcluster-viewer-role
+rules:
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclusters/status
+  verbs:
+  - get

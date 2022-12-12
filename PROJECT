@@ -1,0 +1,43 @@
+domain: git.viettel.vn
+layout:
+- go.kubebuilder.io/v3
+projectName: cluster-api-provider-viettel
+repo: git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: git.viettel.vn
+  group: infrastructure
+  kind: ViettelMachine
+  path: git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: git.viettel.vn
+  group: infrastructure
+  kind: ViettelCluster
+  path: git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: git.viettel.vn
+  group: infrastructure
+  kind: ViettelClusterTemplate
+  path: git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: git.viettel.vn
+  group: infrastructure
+  kind: ViettelMachineTemplate
+  path: git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1
+  version: v1
+version: "3"

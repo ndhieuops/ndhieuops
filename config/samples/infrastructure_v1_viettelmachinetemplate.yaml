@@ -1,0 +1,12 @@
+apiVersion: infrastructure.git.viettel.vn/v1
+kind: ViettelMachineTemplate
+metadata:
+  labels:
+    app.kubernetes.io/name: viettelmachinetemplate
+    app.kubernetes.io/instance: viettelmachinetemplate-sample
+    app.kubernetes.io/part-of: cluster-api-provider-viettel
+    app.kuberentes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cluster-api-provider-viettel
+  name: viettelmachinetemplate-sample
+spec:
+  # TODO(user): Add fields here
