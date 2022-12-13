@@ -17,7 +17,9 @@ limitations under the License.
 package v1
 
 import (
+	cloudapi "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/viettel-cloud/api"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	capierrors "sigs.k8s.io/cluster-api/errors"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -27,15 +29,34 @@ import (
 type ViettelClusterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	VpcID string `json:"vpc"`
 
-	// Foo is an example field of ViettelCluster. Edit viettelcluster_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	ProjectID string `json:"projectId"`
+
+	OwnerID string `json:"owner,omitempty"`
+
+	RegionID string `json:"region"`
+
+	SubnetID string `json:"subnet"`
 }
 
 // ViettelClusterStatus defines the observed state of ViettelCluster
 type ViettelClusterStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	Ready bool `json:"ready"`
+
+	Vpc *cloudapi.VPC `json:"vpc,omitempty"`
+
+	Subnet *cloudapi.Subnet `json:"subnet,omitempty"`
+
+	LoadBalancer *cloudapi.LoadBalancer `json:"loadbalancer,omitempty"`
+	// +optional
+	FailureReason *capierrors.ClusterStatusError `json:"failureReason,omitempty"`
+
+	// +optional
+	FailureMessage *string `json:"failureMessage,omitempty"`
 }
 
 //+kubebuilder:object:root=true
