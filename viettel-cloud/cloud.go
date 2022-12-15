@@ -2,9 +2,11 @@ package viettel_cloud
 
 import (
 	"context"
+	infrav1 "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/api/v1"
 	cmp "git.viettel.vn/cloud-native-cicd/kubernetes-engine/cluster-api-provider-viettel/viettel-cloud/api"
 	scp "github.com/deepmap/oapi-codegen/pkg/securityprovider"
 	"os"
+	capierrors "sigs.k8s.io/cluster-api/errors"
 )
 
 type ViettelCloudProvider struct {
@@ -48,4 +50,10 @@ func CreateViettelCloudProvider(ProjectID string) (ViettelCloudProvider, error) 
 		return ViettelCloudProvider{}, err
 	}
 	return ViettelCloudProvider{Cloud: VCInstance, CloudProjectID: ProjectID}, nil
+}
+
+func HandleUpdateVCError(ViettelCluster *infrav1.ViettelCluster, message error) {
+	err := capierrors.UpdateClusterError
+	ViettelCluster.Status.FailureReason = &err
+	ViettelCluster.Status.FailureMessage = message.Error()
 }

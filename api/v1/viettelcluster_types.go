@@ -38,6 +38,10 @@ type ViettelClusterSpec struct {
 	RegionID string `json:"region"`
 
 	SubnetID string `json:"subnet"`
+
+	LoadBalancerPackage string `json:"loadBalancerPackage,omitempty"`
+
+	LoadBalancerTopology string `json:"LoadBalancerTopology,omitempty"`
 }
 
 // ViettelClusterStatus defines the observed state of ViettelCluster
@@ -51,12 +55,17 @@ type ViettelClusterStatus struct {
 
 	Subnet *cloudapi.Subnet `json:"subnet,omitempty"`
 
-	LoadBalancer *cloudapi.LoadBalancer `json:"loadbalancer,omitempty"`
+	LoadBalancer *cloudapi.LoadBalancerDetail `json:"loadbalancer,omitempty"`
+
+	ServerGroup *cloudapi.ServerGroupDetail `json:"servergroup,omitempty"`
+
+	Listener *cloudapi.ListenerDetail `json:"listener,omitempty"`
+
 	// +optional
 	FailureReason *capierrors.ClusterStatusError `json:"failureReason,omitempty"`
 
 	// +optional
-	FailureMessage *string `json:"failureMessage,omitempty"`
+	FailureMessage string `json:"failureMessage,omitempty"`
 }
 
 //+kubebuilder:object:root=true
