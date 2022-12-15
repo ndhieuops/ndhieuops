@@ -9,8 +9,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"k8s.io/utils/pointer"
-	capierrors "sigs.k8s.io/cluster-api/errors"
 )
 
 func (r *ViettelCloud) GetVpc(ctx context.Context, VpcID string, ProjectID openapi_types.UUID) (cloudapi.VPC, error) {
@@ -46,48 +44,41 @@ func (r *ViettelCloud) GetSubnet(ctx context.Context, SubnetID string, ProjectID
 	return *subnet.JSON200, nil
 }
 
-func (r *ViettelCloud) ReconcileVpc(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) error {
-	log.Info("Start ReconcileVpc")
+func (r *ViettelCloud) ReconcileVpc(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) (cloudapi.VPC, error) {
+	log.Info("Start ReconcileVpc ", "in ProjectID", ProjectID)
 	// check VPC exist or not
 	vpc, err := r.GetVpc(ctx, vcs.VpcID, ProjectID)
 	if err != nil {
-		r.handleUpdateVCError(ViettelCluster, errors.Errorf("can't found any VPC with the ID %s", vcs.VpcID))
-		return fmt.Errorf("can't found any VPC with the ID %s", vcs.VpcID)
+		HandleUpdateVCError(ViettelCluster, errors.Errorf("can't found any VPC with the ID %s", vcs.VpcID))
+		return cloudapi.VPC{}, fmt.Errorf("can't found any VPC with the ID %s", vcs.VpcID)
 	}
 	err = r.CheckandEnableInternet(ctx, vpc, ProjectID)
 	if err != nil {
-		r.handleUpdateVCError(ViettelCluster, errors.Errorf("can't enable internet access to VPC with id  %s", vpc.Id))
-		return fmt.Errorf("can't enable internet access to VPC with id  %s", vpc.Id)
+		HandleUpdateVCError(ViettelCluster, errors.Errorf("can't enable internet access to VPC with id  %s", vpc.Id))
+		return cloudapi.VPC{}, fmt.Errorf("can't enable internet access to VPC with id  %s", vpc.Id)
 	}
 	// Update ViettelCluster VPC Spec
 	ViettelCluster.Status.Vpc = &vpc
-	return nil
+	return cloudapi.VPC{}, nil
 }
 
 func (r *ViettelCloud) ReconcileSubnet(log logr.Logger, ctx context.Context, ViettelCluster *infrav1.ViettelCluster, vcs infrav1.ViettelClusterSpec, ProjectID openapi_types.UUID) error {
-
 	//TODO check how many IP remain
 
 	//TODO check network exist or not
 	if ViettelCluster.Status.Vpc == nil || ViettelCluster.Status.Vpc.Id.String() == "" {
-		r.handleUpdateVCError(ViettelCluster, errors.Errorf("No need to reconcile network components since no network exists."))
+		HandleUpdateVCError(ViettelCluster, errors.Errorf("No need to reconcile network components since no network exists."))
 		log.Info("No need to reconcile network components since no network exists.")
 		return nil
 	}
 
 	subnet, err := r.GetSubnet(ctx, vcs.SubnetID, ProjectID)
 	if err != nil {
-		r.handleUpdateVCError(ViettelCluster, errors.Errorf("can't found any VPC with the ID %s", vcs.VpcID))
+		HandleUpdateVCError(ViettelCluster, errors.Errorf("can't found any VPC with the ID %s", vcs.VpcID))
 		return fmt.Errorf("can't found any VPC with the ID %s", vcs.VpcID)
 	}
 
 	// Update ViettelCluster Subnet Spec
 	ViettelCluster.Status.Subnet = &subnet
 	return nil
-}
-
-func (r *ViettelCloud) handleUpdateVCError(ViettelCluster *infrav1.ViettelCluster, message error) {
-	err := capierrors.UpdateClusterError
-	ViettelCluster.Status.FailureReason = &err
-	ViettelCluster.Status.FailureMessage = pointer.StringPtr(message.Error())
 }
