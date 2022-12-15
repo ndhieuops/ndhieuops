@@ -19,7 +19,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"time"
 
@@ -27,7 +26,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
-	capierrors "sigs.k8s.io/cluster-api/errors"
 	"sigs.k8s.io/cluster-api/util/annotations"
 	"sigs.k8s.io/cluster-api/util/patch"
 	_ "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -54,9 +52,8 @@ type ViettelClusterReconciler struct {
 //+kubebuilder:rbac:groups=infrastructure.git.viettel.vn,resources=viettelclusters/finalizers,verbs=update
 
 func (r *ViettelClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, ers error) {
-
-	log := r.Log.WithValues("ViettelCluster", req.Namespace)
-	log.Info("Reconciling Viettel Cluster...")
+	log := ctrl.LoggerFrom(ctx)
+	log.Info("Reconciling Viettel Cluster... : ", "ViettelCluster", req.Namespace)
 	var ViettelCluster = &infrav1.ViettelCluster{}
 	err := r.Client.Get(ctx, req.NamespacedName, ViettelCluster)
 	if err != nil {
@@ -101,23 +98,31 @@ func (r *ViettelClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 	}
 
 	if !ViettelCluster.DeletionTimestamp.IsZero() {
-		return r.reconcileDelete(ctx, cloudProvider, patchHelper, cluster, ViettelCluster)
+		return r.reconcileDelete(ctx, log, cloudProvider, patchHelper, cluster, ViettelCluster)
 	}
 
-	return r.reconcileNormal(ctx, cloudProvider, patchHelper, ViettelCluster)
+	return r.reconcileNormal(ctx, log, cloudProvider, patchHelper, ViettelCluster)
 }
 
-func (r *ViettelClusterReconciler) reconcileDelete(ctx context.Context, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, cluster *clusterv1.Cluster, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
-	r.Log.Info("Reconciling Cluster delete")
+func (r *ViettelClusterReconciler) reconcileDelete(ctx context.Context, log logr.Logger, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, cluster *clusterv1.Cluster, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
+	log.Info("Reconciling Cluster delete : ", "Cluster ", cluster.Name, "with namespace ", cluster.Namespace)
+
 	if err := patchHelper.Patch(ctx, ViettelCluster); err != nil {
 		return ctrl.Result{}, err
 	}
+
+	ProjectID, _ := uuid.Parse(cloudProvider.CloudProjectID)
+	err := cloudProvider.Cloud.ReconcileDeleteLB(r.Log, ctx, ViettelCluster, ProjectID)
+	if err != nil {
+		r.Log.Info("Fail to delete LoadBalancer")
+		return reconcile.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
-func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
-	r.Log.Info("Reconciling Cluster")
-
+func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, log logr.Logger, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
+	log.Info("Reconciling Cluster")
 	// Register the finalizer immediately to avoid orphaning OpenStack resources on delete
 	if err := patchHelper.Patch(ctx, ViettelCluster); err != nil {
 		return reconcile.Result{}, err
@@ -126,19 +131,24 @@ func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, cloudPro
 	// start reconcile vpc for CAPV
 	ProjectID, _ := uuid.Parse(cloudProvider.CloudProjectID)
 	var vcs infrav1.ViettelClusterSpec
-	err := cloudProvider.Cloud.ReconcileVpc(r.Log, ctx, ViettelCluster, vcs, ProjectID)
+	vpc, err := cloudProvider.Cloud.ReconcileVpc(log, ctx, ViettelCluster, vcs, ProjectID)
 	if err != nil {
 		return reconcile.Result{}, fmt.Errorf("fail when reconcile vpc %s", err)
 	}
 
-	subnet := cloudProvider.Cloud.ReconcileSubnet(r.Log, ctx, ViettelCluster, vcs, ProjectID)
-	if subnet != nil {
-		r.Log.Info("Fail reconcile with VPC")
-		return reconcile.Result{}, subnet
+	err = cloudProvider.Cloud.ReconcileSubnet(log, ctx, ViettelCluster, vcs, ProjectID)
+	if err != nil {
+		r.Log.Info("Fail reconcile VPC")
+		return reconcile.Result{}, err
 	}
 
+	err = cloudProvider.Cloud.ReconcileLB(log, ctx, ViettelCluster, ProjectID, vpc, vcs)
+	if err != nil {
+		r.Log.Info("Fail reconcile LoadBalancer")
+		return reconcile.Result{}, err
+	}
 	ViettelCluster.Status.Ready = true
-	ViettelCluster.Status.FailureMessage = nil
+	ViettelCluster.Status.FailureMessage = ""
 	ViettelCluster.Status.FailureReason = nil
 	r.Log.Info("Reconciled Cluster create successfully")
 	return reconcile.Result{}, nil
@@ -151,7 +161,7 @@ func (r *ViettelClusterReconciler) reconcileTimeout(cluster *clusterv1.Cluster, 
 	//Timeout 30 minutes from creation time
 	if diff >= 30 {
 		cluster.Status.SetTypedPhase(clusterv1.ClusterPhaseFailed)
-		r.handleUpdateVCError(ViettelCluster, errors.Errorf("Timeout provisioning cluster"))
+		cloud.HandleUpdateVCError(ViettelCluster, errors.Errorf("Timeout provisioning cluster"))
 		return errors.Errorf("Timeout provisioning cluster")
 	}
 	return nil
@@ -162,10 +172,4 @@ func (r *ViettelClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&infrav1.ViettelCluster{}).
 		Complete(r)
-}
-
-func (r *ViettelClusterReconciler) handleUpdateVCError(ViettelCluster *infrav1.ViettelCluster, message error) {
-	err := capierrors.UpdateClusterError
-	ViettelCluster.Status.FailureReason = &err
-	ViettelCluster.Status.FailureMessage = pointer.StringPtr(message.Error())
 }
