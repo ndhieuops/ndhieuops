@@ -101,7 +101,7 @@ func (r *ViettelClusterReconciler) Reconcile(ctx context.Context, req ctrl.Reque
 		return r.reconcileDelete(ctx, log, cloudProvider, patchHelper, cluster, ViettelCluster)
 	}
 
-	return r.reconcileNormal(ctx, log, cloudProvider, patchHelper, ViettelCluster)
+	return r.reconcileNormal(ctx, log, cloudProvider, patchHelper, ViettelCluster, cluster.Name)
 }
 
 func (r *ViettelClusterReconciler) reconcileDelete(ctx context.Context, log logr.Logger, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, cluster *clusterv1.Cluster, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
@@ -112,16 +112,21 @@ func (r *ViettelClusterReconciler) reconcileDelete(ctx context.Context, log logr
 	}
 
 	ProjectID, _ := uuid.Parse(cloudProvider.CloudProjectID)
-	err := cloudProvider.Cloud.ReconcileDeleteLB(r.Log, ctx, ViettelCluster, ProjectID)
+	err := cloudProvider.Cloud.ReconcileDeleteLB(log, ctx, ViettelCluster, ProjectID)
 	if err != nil {
-		r.Log.Info("Fail to delete LoadBalancer")
+		log.Info("Fail to delete LoadBalancer")
 		return reconcile.Result{}, err
 	}
 
+	err = cloudProvider.Cloud.DeleteSecurityGroups(log, ctx, ViettelCluster, ProjectID, cluster.Name)
+	if err != nil {
+		log.Info("Fail to delete SecurityGroup")
+		return reconcile.Result{}, err
+	}
 	return ctrl.Result{}, nil
 }
 
-func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, log logr.Logger, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, ViettelCluster *infrav1.ViettelCluster) (ctrl.Result, error) {
+func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, log logr.Logger, cloudProvider cloud.ViettelCloudProvider, patchHelper *patch.Helper, ViettelCluster *infrav1.ViettelCluster, clusterName string) (ctrl.Result, error) {
 	log.Info("Reconciling Cluster")
 	// Register the finalizer immediately to avoid orphaning OpenStack resources on delete
 	if err := patchHelper.Patch(ctx, ViettelCluster); err != nil {
@@ -145,6 +150,11 @@ func (r *ViettelClusterReconciler) reconcileNormal(ctx context.Context, log logr
 	err = cloudProvider.Cloud.ReconcileLB(log, ctx, ViettelCluster, ProjectID, vpc, vcs)
 	if err != nil {
 		r.Log.Info("Fail reconcile LoadBalancer")
+		return reconcile.Result{}, err
+	}
+	err = cloudProvider.Cloud.ReconcileSecurityGroups(log, ctx, ViettelCluster, ProjectID, clusterName, vcs)
+	if err != nil {
+		r.Log.Info("Fail reconcile SecurityGroup")
 		return reconcile.Result{}, err
 	}
 	ViettelCluster.Status.Ready = true
