@@ -47,11 +47,11 @@ func init() {
 	utilruntime.Must(infrastructurev1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
-
 func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var webhookPort int
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -68,7 +68,7 @@ func main() {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Port:                   webhookPort,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "b5204a15.git.viettel.vn",
