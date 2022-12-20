@@ -1,0 +1,111 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclusters/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclusters/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclustertemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclustertemplates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelclustertemplates/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachines
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachines/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachines/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachinetemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachinetemplates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - infrastructure.git.viettel.vn
+  resources:
+  - viettelmachinetemplates/status
+  verbs:
+  - get
+  - patch
+  - update

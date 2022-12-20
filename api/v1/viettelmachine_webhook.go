@@ -24,9 +24,9 @@ import (
 )
 
 // log is for logging in this package.
-var viettelClusterLog = logf.Log.WithName("viettelCluster-resource")
+var viettelmachinelog = logf.Log.WithName("viettelmachine-resource")
 
-func (r *ViettelCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *ViettelMachine) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
@@ -34,41 +34,41 @@ func (r *ViettelCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 // TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-//+kubebuilder:webhook:path=/mutate-infrastructure-git-viettel-vn-v1-viettelCluster,mutating=true,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelClusters,verbs=create;update,versions=v1,name=mviettelCluster.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/mutate-infrastructure-git-viettel-vn-v1-viettelmachine,mutating=true,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelmachines,verbs=create;update,versions=v1,name=mviettelmachine.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Defaulter = &ViettelCluster{}
+var _ webhook.Defaulter = &ViettelMachine{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ViettelCluster) Default() {
-	viettelClusterLog.Info("default", "name", r.Name)
+func (r *ViettelMachine) Default() {
+	viettelmachinelog.Info("default", "name", r.Name)
 
 	// TODO(user): fill in your defaulting logic.
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-viettelCluster,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelClusters,verbs=create;update,versions=v1,name=vviettelCluster.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-viettelmachine,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelmachines,verbs=create;update,versions=v1,name=vviettelmachine.kb.io,admissionReviewVersions=v1
 
-var _ webhook.Validator = &ViettelCluster{}
+var _ webhook.Validator = &ViettelMachine{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ViettelCluster) ValidateCreate() error {
-	viettelClusterLog.Info("validate create", "name", r.Name)
+func (r *ViettelMachine) ValidateCreate() error {
+	viettelmachinelog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ViettelCluster) ValidateUpdate(old runtime.Object) error {
-	viettelClusterLog.Info("validate update", "name", r.Name)
+func (r *ViettelMachine) ValidateUpdate(old runtime.Object) error {
+	viettelmachinelog.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
 	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ViettelCluster) ValidateDelete() error {
-	viettelClusterLog.Info("validate delete", "name", r.Name)
+func (r *ViettelMachine) ValidateDelete() error {
+	viettelmachinelog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
