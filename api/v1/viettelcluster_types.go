@@ -42,6 +42,8 @@ type ViettelClusterSpec struct {
 	LoadBalancerPackage string `json:"loadBalancerPackage,omitempty"`
 
 	LoadBalancerTopology string `json:"LoadBalancerTopology,omitempty"`
+	// +optional
+	ManagedSecurityGroups bool `json:"managedSecurityGroups"`
 }
 
 // ViettelClusterStatus defines the observed state of ViettelCluster
@@ -60,6 +62,8 @@ type ViettelClusterStatus struct {
 	ServerGroup *cloudapi.ServerGroupDetail `json:"servergroup,omitempty"`
 
 	Listener *cloudapi.ListenerDetail `json:"listener,omitempty"`
+
+	SecurityGroup *cloudapi.SecurityGroup `json:"securityGroup,omitempty"`
 
 	// +optional
 	FailureReason *capierrors.ClusterStatusError `json:"failureReason,omitempty"`

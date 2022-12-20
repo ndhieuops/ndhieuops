@@ -14,6 +14,24 @@ import (
 	"time"
 )
 
+const (
+	K8sLBPrefix  = "k8s-api-LB-"
+	K8sLSPrefix  = "k8s-api-LS-"
+	K8sSGPrefix  = "k8s-api-SG-"
+	LoadBalancer = "LoadBalancer"
+	ServerGroup  = "ServerGroup"
+	Listener     = "Listener"
+
+	Duplicate     = "error : found duplicate %s with name %s in project %s"
+	CantList      = "can't list %s in project %s"
+	CantGet       = "can't get %s with ID %s in project %s"
+	TimeOut       = "%s %q with id %s is not active after timeout: %v"
+	CreateFail    = "fail when create %s with ID %s : %s"
+	NotActive     = "%s %q with id %s is not active"
+	Trouble       = "have some trouble when creating %s : %s"
+	ReconcileFail = "%s %q with id %s is not active or create %s fail"
+)
+
 var backoff = wait.Backoff{
 	Steps:    30,
 	Duration: time.Second,
@@ -25,20 +43,20 @@ func (r *ViettelCloud) GetOrCreateLB(log logr.Logger, ctx context.Context, LBNam
 	// get and check server group exist or not
 	LbList, err := r.Client.InfraLoadBalancingLoadBalancerListWithResponse(ctx, &cloudapi.InfraLoadBalancingLoadBalancerListParams{ProjectId: ProjectID, Name: &LBName})
 	if err != nil {
-		return cloudapi.LoadBalancerDetail{}, fmt.Errorf("can't list LoadBalancer in project %s", ProjectID)
+		return cloudapi.LoadBalancerDetail{}, fmt.Errorf(CantList, LoadBalancer, ProjectID)
 	}
 	LBs := *LbList.JSON200.Results
 	if len(LBs) > 1 {
-		return cloudapi.LoadBalancerDetail{}, fmt.Errorf("error : found duplicate LoadBalancer with name %s in project %s", LBName, ProjectID)
+		return cloudapi.LoadBalancerDetail{}, fmt.Errorf(Duplicate, LoadBalancer, LBName, ProjectID)
 	} else if len(LBs) < 1 {
 		// Cus LB empty then create a new one
 		regionID, _ := uuid.Parse(vcs.RegionID)
 		var LBTopology cloudapi.TopologyEnum = ""
 		var LBPackage cloudapi.PackageEnum = ""
-
+		require := "have to set both value of LoadBalancerTopology and LoadBalancerPackage"
 		if strings.ToUpper(vcs.LoadBalancerTopology) == "" || strings.ToUpper(vcs.LoadBalancerPackage) == "" {
-			HandleUpdateVCError(vcluster, fmt.Errorf("have to set both value of LoadBalancerTopology and LoadBalancerPackage"))
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("have to set both value of LoadBalancerTopology and LoadBalancerPackage")
+			HandleUpdateVCError(vcluster, fmt.Errorf(require))
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(require)
 		} else if strings.ToUpper(vcs.LoadBalancerTopology) == "" && strings.ToUpper(vcs.LoadBalancerPackage) == "" {
 			LBTopology = cloudapi.SINGLE
 			LBPackage = cloudapi.PackageEnumMEDIUM
@@ -69,24 +87,26 @@ func (r *ViettelCloud) GetOrCreateLB(log logr.Logger, ctx context.Context, LBNam
 				Vpc:      *vpc.Id,
 			})
 		if err != nil {
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("fail when create LB with ID %s : %s", lb.JSON201.Id, err)
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(CreateFail, LoadBalancer, lb.JSON201.Id, err)
 		}
-		getLb, err := r.Client.InfraLoadBalancingLoadBalancerRetrieveWithResponse(ctx, *lb.JSON201.Id, &cloudapi.InfraLoadBalancingLoadBalancerRetrieveParams{ProjectId: ProjectID})
+		LB, err := r.Client.InfraLoadBalancingLoadBalancerRetrieveWithResponse(ctx, *lb.JSON201.Id, &cloudapi.InfraLoadBalancingLoadBalancerRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("can't get LoadBalancer with ID %s in project %s", *lb.JSON201.Id, ProjectID)
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(CantGet, LoadBalancer, *lb.JSON201.Id, ProjectID)
 		}
-		if err := r.waitForLoadBalancerActive(log, getLb.JSON200.Name, ctx, *getLb.JSON200.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", getLb.JSON200.Name, getLb.JSON200.Id.String(), err)
+		if err := r.waitForLoadBalancerActive(log, LB.JSON200.Name, ctx, *LB.JSON200.Id, vcluster, ProjectID); err != nil {
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, LB.JSON200.Name, LB.JSON200.Id.String()))
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(TimeOut, LoadBalancer, LB.JSON200.Name, LB.JSON200.Id.String(), err)
 		}
-		return *getLb.JSON200, nil
+		return *LB.JSON200, nil
 	} else {
 		// found one LB exist so retrieve it
 		LB, err := r.Client.InfraLoadBalancingLoadBalancerRetrieveWithResponse(ctx, *LBs[0].Id, &cloudapi.InfraLoadBalancingLoadBalancerRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("can't get LoadBalancer with ID %s in project %s", *LBs[0].Id, ProjectID)
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(CantGet, LoadBalancer, *LBs[0].Id, ProjectID)
 		}
 		if err := r.waitForLoadBalancerActive(log, LB.JSON200.Name, ctx, *LB.JSON200.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.LoadBalancerDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", LB.JSON200.Name, LB.JSON200.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, LB.JSON200.Name, LB.JSON200.Id.String()))
+			return cloudapi.LoadBalancerDetail{}, fmt.Errorf(TimeOut, LoadBalancer, LB.JSON200.Name, LB.JSON200.Id.String(), err)
 		}
 		return *LB.JSON200, nil
 	}
@@ -96,12 +116,12 @@ func (r *ViettelCloud) GetOrCreateServerGroup(log logr.Logger, ctx context.Conte
 
 	SgList, err := r.Client.InfraLoadBalancingServerGroupListWithResponse(ctx, &cloudapi.InfraLoadBalancingServerGroupListParams{ProjectId: ProjectID, Name: &SGName})
 	if err != nil {
-		return cloudapi.ServerGroupDetail{}, fmt.Errorf("can't list LoadBalancer in project %s", ProjectID)
+		return cloudapi.ServerGroupDetail{}, fmt.Errorf(CantList, ServerGroup, ProjectID)
 	}
 	SGs := *SgList.JSON200.Results
 
 	if len(SGs) > 1 {
-		return cloudapi.ServerGroupDetail{}, fmt.Errorf("error : found duplicate LoadBalancer with name %s in project %s", SGName, ProjectID)
+		return cloudapi.ServerGroupDetail{}, fmt.Errorf(Duplicate, ServerGroup, SGName, ProjectID)
 	} else if len(SGs) < 1 {
 		// Cus SG empty then create a new one
 		sg, err := r.Client.InfraLoadBalancingServerGroupCreateWithResponse(ctx, &cloudapi.InfraLoadBalancingServerGroupCreateParams{ProjectId: ProjectID},
@@ -121,32 +141,36 @@ func (r *ViettelCloud) GetOrCreateServerGroup(log logr.Logger, ctx context.Conte
 				Protocol:              cloudapi.LoadBalancingProtocolTypeEnumTCP,
 			})
 		if err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("fail when create LB with ID %s : %s", sg.JSON201.Id, err)
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(CreateFail, ServerGroup, sg.JSON201.Id, err)
 		}
-		getSg, err := r.Client.InfraLoadBalancingServerGroupRetrieveWithResponse(ctx, *sg.JSON201.Id, &cloudapi.InfraLoadBalancingServerGroupRetrieveParams{ProjectId: ProjectID})
+		SG, err := r.Client.InfraLoadBalancingServerGroupRetrieveWithResponse(ctx, *sg.JSON201.Id, &cloudapi.InfraLoadBalancingServerGroupRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("can't get LoadBalancer with ID %s in project %s", *sg.JSON201.Id, ProjectID)
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(CantGet, ServerGroup, *sg.JSON201.Id, ProjectID)
 		}
 		// check LB active or not to make sure Server Group are created
 		if err := r.waitForLoadBalancerActive(log, lb.Name, ctx, *lb.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", lb.Name, lb.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, lb.Name, lb.Id.String()))
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(TimeOut, LoadBalancer, lb.Name, lb.Id.String(), err)
 		}
-		if err := r.waitForServerGroupActive(log, getSg.JSON200.Name, ctx, *getSg.JSON200.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("ServerGroup %q with id %s is not active after timeout: %v", getSg.JSON200.Name, getSg.JSON200.Id.String(), err)
+		if err := r.waitForServerGroupActive(log, SG.JSON200.Name, ctx, *SG.JSON200.Id, vcluster, ProjectID); err != nil {
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, ServerGroup, SG.JSON200.Name, SG.JSON200.Id.String()))
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(TimeOut, ServerGroup, SG.JSON200.Name, SG.JSON200.Id.String(), err)
 		}
-		return *getSg.JSON200, nil
+		return *SG.JSON200, nil
 	} else {
 		// found one SG exist so retrieve it
 		SG, err := r.Client.InfraLoadBalancingServerGroupRetrieveWithResponse(ctx, *SGs[0].Id, &cloudapi.InfraLoadBalancingServerGroupRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("can't get LoadBalancer with ID %s in project %s", *SGs[0].Id, ProjectID)
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(CantGet, ServerGroup, *SGs[0].Id, ProjectID)
 		}
 		// check LB active or not to make sure Server Group are created
 		if err := r.waitForLoadBalancerActive(log, lb.Name, ctx, *lb.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", lb.Name, lb.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, lb.Name, lb.Id.String()))
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(TimeOut, LoadBalancer, lb.Name, lb.Id.String(), err)
 		}
 		if err := r.waitForServerGroupActive(log, SG.JSON200.Name, ctx, *SG.JSON200.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.ServerGroupDetail{}, fmt.Errorf("ServerGroup %q with id %s is not active after timeout: %v", SG.JSON200.Name, SG.JSON200.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, ServerGroup, SG.JSON200.Name, SG.JSON200.Id.String()))
+			return cloudapi.ServerGroupDetail{}, fmt.Errorf(TimeOut, ServerGroup, SG.JSON200.Name, SG.JSON200.Id.String(), err)
 		}
 		return *SG.JSON200, nil
 	}
@@ -156,12 +180,12 @@ func (r *ViettelCloud) GetOrCreateListener(log logr.Logger, ctx context.Context,
 	// get and check Listener exist or not
 	LsList, err := r.Client.InfraLoadBalancingListenerListWithResponse(ctx, &cloudapi.InfraLoadBalancingListenerListParams{ProjectId: ProjectID, Name: &LSName})
 	if err != nil {
-		return cloudapi.ListenerDetail{}, fmt.Errorf("can't list LoadBalancer in project %s", ProjectID)
+		return cloudapi.ListenerDetail{}, fmt.Errorf(CantList, Listener, ProjectID)
 	}
 	Ls := *LsList.JSON200.Results
 
 	if len(Ls) > 1 {
-		return cloudapi.ListenerDetail{}, fmt.Errorf("error : found duplicate LoadBalancer with name %s in project %s", LSName, ProjectID)
+		return cloudapi.ListenerDetail{}, fmt.Errorf(Duplicate, Listener, LSName, ProjectID)
 	} else if len(Ls) < 1 {
 		// Cus LS empty then create a new one
 		ls, err := r.Client.InfraLoadBalancingListenerCreateWithResponse(ctx, &cloudapi.InfraLoadBalancingListenerCreateParams{ProjectId: ProjectID},
@@ -175,35 +199,36 @@ func (r *ViettelCloud) GetOrCreateListener(log logr.Logger, ctx context.Context,
 				ServerGroup:    sg.Id,
 			})
 		if err != nil {
-			return cloudapi.ListenerDetail{}, fmt.Errorf("fail when create Listener with ID %s : %s", ls.JSON201.Id, err)
+			return cloudapi.ListenerDetail{}, fmt.Errorf(CreateFail, Listener, ls.JSON201.Id, err)
 		}
-		getLs, err := r.Client.InfraLoadBalancingListenerRetrieveWithResponse(ctx, *ls.JSON201.Id, &cloudapi.InfraLoadBalancingListenerRetrieveParams{ProjectId: ProjectID})
+		LS, err := r.Client.InfraLoadBalancingListenerRetrieveWithResponse(ctx, *ls.JSON201.Id, &cloudapi.InfraLoadBalancingListenerRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.ListenerDetail{}, fmt.Errorf("can't get Listener with ID %s in project %s", *ls.JSON201.Id, ProjectID)
+			return cloudapi.ListenerDetail{}, fmt.Errorf(CantGet, Listener, *ls.JSON201.Id, ProjectID)
 		}
 		// check LB active or not to make sure Listener are created
 		if err := r.waitForLoadBalancerActive(log, lb.Name, ctx, *lb.Id, vcluster, ProjectID); err != nil {
-			return cloudapi.ListenerDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", lb.Name, lb.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, lb.Name, lb.Id.String()))
+			return cloudapi.ListenerDetail{}, fmt.Errorf(TimeOut, LoadBalancer, lb.Name, lb.Id.String(), err)
 		}
-		if err := r.waitForListenerActive(log, getLs.JSON200.Name, ctx, *getLs.JSON200.Id, vcluster, ProjectID); err != nil {
-
-			return cloudapi.ListenerDetail{}, fmt.Errorf("ServerGroup %q with id %s is not active after timeout: %v", getLs.JSON200.Name, getLs.JSON200.Id.String(), err)
+		if err := r.waitForListenerActive(log, LS.JSON200.Name, ctx, *LS.JSON200.Id, vcluster, ProjectID); err != nil {
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, Listener, LS.JSON200.Name, LS.JSON200.Id.String()))
+			return cloudapi.ListenerDetail{}, fmt.Errorf(TimeOut, Listener, LS.JSON200.Name, LS.JSON200.Id.String(), err)
 		}
-		return *getLs.JSON200, nil
+		return *LS.JSON200, nil
 	} else {
 		// found one SG exist so retrieve it
 		LS, err := r.Client.InfraLoadBalancingListenerRetrieveWithResponse(ctx, *Ls[0].Id, &cloudapi.InfraLoadBalancingListenerRetrieveParams{ProjectId: ProjectID})
 		if err != nil {
-			return cloudapi.ListenerDetail{}, fmt.Errorf("can't get LoadBalancer with ID %s in project %s", *Ls[0].Id, ProjectID)
+			return cloudapi.ListenerDetail{}, fmt.Errorf(CantGet, Listener, *Ls[0].Id, ProjectID)
 		}
 		// check LB active or not to make sure Server Group are created
 		if err := r.waitForLoadBalancerActive(log, lb.Name, ctx, *lb.Id, vcluster, ProjectID); err != nil {
-			HandleUpdateVCError(vcluster, errors.Errorf("LoadBalancer %q with id %s is not active", lb.Name, lb.Id.String()))
-			return cloudapi.ListenerDetail{}, fmt.Errorf("LoadBalancer %q with id %s is not active after timeout: %v", lb.Name, lb.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, LoadBalancer, lb.Name, lb.Id.String()))
+			return cloudapi.ListenerDetail{}, fmt.Errorf(TimeOut, LoadBalancer, lb.Name, lb.Id.String(), err)
 		}
 		if err := r.waitForListenerActive(log, LS.JSON200.Name, ctx, *LS.JSON200.Id, vcluster, ProjectID); err != nil {
-			HandleUpdateVCError(vcluster, errors.Errorf("Listener %q with id %s is not active", LS.JSON200.Name, LS.JSON200.Id.String()))
-			return cloudapi.ListenerDetail{}, fmt.Errorf("listener %q with id %s is not active after timeout: %v", LS.JSON200.Name, LS.JSON200.Id.String(), err)
+			HandleUpdateVCError(vcluster, errors.Errorf(NotActive, Listener, lb.Name, lb.Id.String()))
+			return cloudapi.ListenerDetail{}, fmt.Errorf(TimeOut, Listener, LS.JSON200.Name, LS.JSON200.Id.String(), err)
 		}
 		return *LS.JSON200, nil
 	}
@@ -214,33 +239,33 @@ func (r *ViettelCloud) ReconcileLB(log logr.Logger, ctx context.Context, vcluste
 
 	//TODO hardening when reconcile LB, --> add tag Viettel Cloud for LB
 	// Generate LoadBalancer Name
-	LBName := "k8s-api-LB-" + vcluster.Name + vcluster.Namespace
-	SGName := "k8s-api-SG-" + vcluster.Name + vcluster.Namespace
-	LSName := "k8s-api-LS-" + vcluster.Name + vcluster.Namespace
+	LBName := K8sLBPrefix + vcluster.Name + vcluster.Namespace
+	SGName := K8sSGPrefix + vcluster.Name + vcluster.Namespace
+	LSName := K8sLSPrefix + vcluster.Name + vcluster.Namespace
 	// Check LB exist or not
-	LoadBalancer, err := r.GetOrCreateLB(log, ctx, LBName, ProjectID, vcluster, vpc, vcs)
+	loadBalancer, err := r.GetOrCreateLB(log, ctx, LBName, ProjectID, vcluster, vpc, vcs)
 	if err != nil {
-		HandleUpdateVCError(vcluster, errors.Errorf("load balancer %q with id %s is not active or create LoadBalancer fail", LoadBalancer.Name, LoadBalancer.Id.String()))
-		return fmt.Errorf("have some trouble when creating LoadBalancer : %s", err)
+		HandleUpdateVCError(vcluster, errors.Errorf(ReconcileFail, LoadBalancer, loadBalancer.Name, loadBalancer.Id.String(), LoadBalancer))
+		return fmt.Errorf(Trouble, LoadBalancer, err)
 	}
 
-	vcluster.Status.LoadBalancer = &LoadBalancer
+	vcluster.Status.LoadBalancer = &loadBalancer
 
-	ServerGroup, err := r.GetOrCreateServerGroup(log, ctx, SGName, ProjectID, vcluster, LoadBalancer)
+	serverGroup, err := r.GetOrCreateServerGroup(log, ctx, SGName, ProjectID, vcluster, loadBalancer)
 	if err != nil {
-		HandleUpdateVCError(vcluster, errors.Errorf("Server Group %q with id %s is not active or create Server Group fail", ServerGroup.Name, ServerGroup.Id.String()))
-		return fmt.Errorf("have some trouble when creating Server Group : %s", err)
+		HandleUpdateVCError(vcluster, errors.Errorf(ReconcileFail, ServerGroup, loadBalancer.Name, loadBalancer.Id.String(), ServerGroup))
+		return fmt.Errorf(Trouble, ServerGroup, err)
 	}
 
-	vcluster.Status.ServerGroup = &ServerGroup
+	vcluster.Status.ServerGroup = &serverGroup
 
-	Listener, err := r.GetOrCreateListener(log, ctx, LSName, ProjectID, vcluster, LoadBalancer, ServerGroup)
+	listener, err := r.GetOrCreateListener(log, ctx, LSName, ProjectID, vcluster, loadBalancer, serverGroup)
 	if err != nil {
-		HandleUpdateVCError(vcluster, errors.Errorf("Listener %q with id %s is not active or create Listener fail", Listener.Name, Listener.Id.String()))
-		return fmt.Errorf("have some trouble when creating Listener : %s", err)
+		HandleUpdateVCError(vcluster, errors.Errorf(ReconcileFail, Listener, loadBalancer.Name, loadBalancer.Id.String(), Listener))
+		return fmt.Errorf(Trouble, Listener, err)
 	}
 
-	vcluster.Status.Listener = &Listener
+	vcluster.Status.Listener = &listener
 
 	return nil
 }
