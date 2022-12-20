@@ -17,13 +17,17 @@ limitations under the License.
 package v1
 
 import (
+	"reflect"
+
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
-// log is for logging in this package.
+const viettelClusterImmutableMsg = "viettelCluster spec field is immutable. Please create a new resource instead."
+
 var viettelClusterLog = logf.Log.WithName("viettelCluster-resource")
 
 func (r *ViettelCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
@@ -32,21 +36,8 @@ func (r *ViettelCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
-//+kubebuilder:webhook:path=/mutate-infrastructure-git-viettel-vn-v1-viettelCluster,mutating=true,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelClusters,verbs=create;update,versions=v1,name=mviettelCluster.kb.io,admissionReviewVersions=v1
-
-var _ webhook.Defaulter = &ViettelCluster{}
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ViettelCluster) Default() {
-	viettelClusterLog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
-}
-
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-viettelCluster,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelClusters,verbs=create;update,versions=v1,name=vviettelCluster.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-viettelCluster,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelClusters,verbs=create;update,versions=v1,name=viettelCluster.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ViettelCluster{}
 
@@ -61,8 +52,19 @@ func (r *ViettelCluster) ValidateCreate() error {
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *ViettelCluster) ValidateUpdate(old runtime.Object) error {
 	viettelClusterLog.Info("validate update", "name", r.Name)
+	var allErrs field.ErrorList
+	oldNestedcluster := old.(*ViettelCluster)
 
-	// TODO(user): fill in your validation logic upon object update.
+	if !reflect.DeepEqual(r.Spec, oldNestedcluster.Spec) {
+		allErrs = append(allErrs,
+			field.Invalid(field.NewPath("spec", "template", "spec"), r, viettelClusterImmutableMsg),
+		)
+	}
+
+	if len(allErrs) != 0 {
+		return aggregateObjErrors(r.GroupVersionKind().GroupKind(), r.Name, allErrs)
+	}
+
 	return nil
 }
 

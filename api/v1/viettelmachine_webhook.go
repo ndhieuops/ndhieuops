@@ -17,14 +17,18 @@ limitations under the License.
 package v1
 
 import (
+	"reflect"
+
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
-// log is for logging in this package.
-var viettelmachinelog = logf.Log.WithName("viettelmachine-resource")
+const ViettelMachineImmutableMsg = "ViettelMachine spec field is immutable. Please create a new resource instead."
+
+var ViettelMachineLog = logf.Log.WithName("ViettelMachine-resource")
 
 func (r *ViettelMachine) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
@@ -32,27 +36,14 @@ func (r *ViettelMachine) SetupWebhookWithManager(mgr ctrl.Manager) error {
 		Complete()
 }
 
-// TODO(user): EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-
-//+kubebuilder:webhook:path=/mutate-infrastructure-git-viettel-vn-v1-viettelmachine,mutating=true,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelmachines,verbs=create;update,versions=v1,name=mviettelmachine.kb.io,admissionReviewVersions=v1
-
-var _ webhook.Defaulter = &ViettelMachine{}
-
-// Default implements webhook.Defaulter so a webhook will be registered for the type
-func (r *ViettelMachine) Default() {
-	viettelmachinelog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
-}
-
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-viettelmachine,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=viettelmachines,verbs=create;update,versions=v1,name=vviettelmachine.kb.io,admissionReviewVersions=v1
+//+kubebuilder:webhook:path=/validate-infrastructure-git-viettel-vn-v1-ViettelMachine,mutating=false,failurePolicy=fail,sideEffects=None,groups=infrastructure.git.viettel.vn,resources=ViettelMachines,verbs=create;update,versions=v1,name=ViettelMachine.kb.io,admissionReviewVersions=v1
 
 var _ webhook.Validator = &ViettelMachine{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *ViettelMachine) ValidateCreate() error {
-	viettelmachinelog.Info("validate create", "name", r.Name)
+	ViettelMachineLog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
 	return nil
@@ -60,15 +51,26 @@ func (r *ViettelMachine) ValidateCreate() error {
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *ViettelMachine) ValidateUpdate(old runtime.Object) error {
-	viettelmachinelog.Info("validate update", "name", r.Name)
+	ViettelMachineLog.Info("validate update", "name", r.Name)
+	var allErrs field.ErrorList
+	oldNestedcluster := old.(*ViettelMachine)
 
-	// TODO(user): fill in your validation logic upon object update.
+	if !reflect.DeepEqual(r.Spec, oldNestedcluster.Spec) {
+		allErrs = append(allErrs,
+			field.Invalid(field.NewPath("spec", "template", "spec"), r, ViettelMachineImmutableMsg),
+		)
+	}
+
+	if len(allErrs) != 0 {
+		return aggregateObjErrors(r.GroupVersionKind().GroupKind(), r.Name, allErrs)
+	}
+
 	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *ViettelMachine) ValidateDelete() error {
-	viettelmachinelog.Info("validate delete", "name", r.Name)
+	ViettelMachineLog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
